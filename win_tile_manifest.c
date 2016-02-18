@@ -22,7 +22,7 @@ VOID static GetManifestFileName(LPTSTR lpFileName, DWORD dwLen)
 }
 
 /******************************************************************************/
-VOID CheckWinTileManifest(VOID)
+VOID CreateWinTileManifest(VOID)
 {    
     LPTSTR lpFileName;
     
@@ -35,8 +35,8 @@ VOID CheckWinTileManifest(VOID)
         
         GetManifestFileName(lpFileName, MAX_PATH);
 
-        hFile = CreateFile(lpFileName, GENERIC_WRITE, 0, NULL, CREATE_NEW,
-                FILE_ATTRIBUTE_NORMAL, NULL);
+        hFile = CreateFile(lpFileName, GENERIC_WRITE, 0, NULL, 
+                CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
         if(INVALID_HANDLE_VALUE != hFile)
         {

@@ -25,4 +25,5 @@
 #define ID_REMOVEREGISTRYDATA           40002
 #define ID_DISKMAPPER_RUNATSTARTUP      40003
 #define ID_RUNATSTARTUP                 40004
+#define ID_VISUALMANIFEST               40005
 

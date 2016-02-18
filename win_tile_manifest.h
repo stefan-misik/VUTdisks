@@ -4,7 +4,7 @@
 
 #include "common.h"
 
-VOID CheckWinTileManifest(VOID);
+VOID CreateWinTileManifest(VOID);
 
 #endif /* WIN_TILE_MANIFEST_H */
 

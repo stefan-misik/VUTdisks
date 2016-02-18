@@ -84,5 +84,6 @@ BEGIN
     BEGIN
         MENUITEM "&Remove Saved Login Data",    ID_REMOVEREGISTRYDATA
         MENUITEM "R&un at Startup",             ID_RUNATSTARTUP
+        MENUITEM "Windows 8.1/10 Integration",  ID_VISUALMANIFEST
     END
 END

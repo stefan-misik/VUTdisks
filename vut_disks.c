@@ -277,6 +277,21 @@ INT_PTR CALLBACK DialogProc(
 					}
 				}
 				return TRUE;
+                
+            case ID_VISUALMANIFEST:
+                if (IDYES == MessageBox(hwndDlg,
+					TEXT("This will create VisualElementsManifest.xml file ")
+					TEXT("which graphically integrates application tile ")
+                    TEXT("in Windows 8.1/10 start menu, when it is ")
+                    TEXT("created.\r\n")
+					TEXT("\r\nDo you wish to continue?"),
+					g_lpCaption, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
+				{					
+					/* Create Windows 8.1/10 Tile style Manifest if 
+                     * there  is none */
+                    CreateWinTileManifest();
+				}
+                return TRUE;
 			
 			case IDCANCEL:
 				if (NULL == g_lpMapParam)
@@ -552,10 +567,7 @@ INT WINAPI WinMain(
 	/* Get Process heap */
 	g_hHeap = GetProcessHeap();
     
-    /* Create Windows 8.1/10 Tile style Manifest if there  is none */
-    CheckWinTileManifest();
-
-	/* Open Registry Key */
+    /* Open Registry Key */
 	OpenMyRegKey();
 
 	g_hSmallWarnIcon = LoadImage(g_hMyInstance, MAKEINTRESOURCE(IDI_WARN),
