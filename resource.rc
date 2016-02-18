@@ -1,0 +1,88 @@
+#include "resource.h"
+
+/******************************************************************************/
+1 RT_MANIFEST "res\\VUTdisks.manifest"
+
+
+/******************************************************************************/
+IDI_WARN                ICON                    "res\\warning.ico"
+
+/******************************************************************************/
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,5
+ PRODUCTVERSION 1,0,0,5
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40000L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000904b0"
+        BEGIN
+            VALUE "CompanyName", "Stefan Misik"
+            VALUE "FileDescription", "Utility to map network disks"
+            VALUE "FileVersion", "1.0.0.5"
+            VALUE "InternalName", "VUTdisks.exe"
+            VALUE "LegalCopyright", "Copyright (C) 2014"
+            VALUE "OriginalFilename", "VUTdisks.exe"
+            VALUE "ProductName", "VUT Disk Mapper"
+            VALUE "ProductVersion", "1.0.0.5"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x9, 1200
+    END
+END
+
+/******************************************************************************/
+IDI_MAIN                ICON                    "res\\icon.ico"
+
+/******************************************************************************/
+IDD_MAIN_WND DIALOGEX 0, 0, 255, 231
+STYLE   DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | 
+        WS_OVERLAPPED | WS_VISIBLE | WS_CAPTION | WS_SYSMENU 
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "VUT Disk Mapper"
+MENU IDR_MENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_LOGIN,76,95,145,14,ES_LOWERCASE | ES_AUTOHSCROLL
+    EDITTEXT        IDC_ID,76,111,145,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_PASSWD,76,127,145,14,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Map",IDOK,132,210,50,14
+    PUSHBUTTON      "Close",IDCANCEL,191,210,50,14
+    GROUPBOX        "Login",IDC_STATIC,24,78,210,87
+    LTEXT           "Login",IDC_STATIC,36,99,18,14
+    LTEXT           "ID",IDC_STATIC,35,115,8,14
+    CONTROL         "",IDC_LOGO,"Static",SS_OWNERDRAW,0,0,255,70
+    CONTROL         "",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,24,176,210,8
+    LTEXT           "Password",IDC_STATIC,35,131,32,14
+    CONTROL         " 2014 Ing. Stefan Misik\n<A>xmisik00@stud.feec.vutbr.cz</A>",IDC_MAILTO,
+                    "SysLink",0x0,16,206,99,18
+    CONTROL         "Save this password",IDC_SAVE_PASS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,76,146,74,10
+    ICON            "",IDC_WARNS,28,190,21,20,NOT WS_VISIBLE
+    CONTROL         "There were some errors. <a>Show details</a>",IDC_ERR_LIST,
+                    "SysLink",NOT WS_VISIBLE | WS_TABSTOP,42,190,146,11
+END
+
+
+/******************************************************************************/
+IDB_LOGO                BITMAP                  "res\\logo_vut.bmp"
+
+
+/******************************************************************************/
+IDR_MENU MENU
+BEGIN
+    POPUP "&Disk Mapper"
+    BEGIN
+        MENUITEM "&Remove Saved Login Data",    ID_REMOVEREGISTRYDATA
+        MENUITEM "R&un at Startup",             ID_RUNATSTARTUP
+    END
+END
