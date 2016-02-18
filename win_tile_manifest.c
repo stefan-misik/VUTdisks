@@ -3,11 +3,11 @@
 
 /******************************************************************************/
 static const char g_lpManifest[] = 
-    "<Application xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
-    "<VisualElements \n"
-    "BackgroundColor=\"#c20e1a\"\n"
-    "ShowNameOnSquare150x150Logo=\"on\"\n"
-    "ForegroundText=\"light\"/>\n"
+    "<Application xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
+    "<VisualElements\r\n"
+    "BackgroundColor=\"#c20e1a\"\r\n"
+    "ShowNameOnSquare150x150Logo=\"on\"\r\n"
+    "ForegroundText=\"light\"/>\r\n"
     "</Application>";
 
 /******************************************************************************/
@@ -42,7 +42,7 @@ VOID CheckWinTileManifest(VOID)
         {
             DWORD dwPos, dwLen, dwWritten;
 
-            dwLen = sizeof(g_lpManifest) / sizeof(char);
+            dwLen = (sizeof(g_lpManifest) - 1) / sizeof(char);
             dwPos = 0;
 
             while(dwPos < dwLen)

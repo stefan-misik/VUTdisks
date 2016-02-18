@@ -30,3 +30,5 @@
 
 # Netbeans project files
 nbproject/
+
+*.VisualElementsManifest.xml
