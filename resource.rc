@@ -9,8 +9,8 @@ IDI_WARN                ICON                    "res\\warning.ico"
 
 /******************************************************************************/
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,5
- PRODUCTVERSION 1,0,0,5
+ FILEVERSION 1,0,0,10
+ PRODUCTVERSION 1,0,0,10
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -27,12 +27,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Stefan Misik"
             VALUE "FileDescription", "Utility to map network disks"
-            VALUE "FileVersion", "1.0.0.5"
+            VALUE "FileVersion", "1.0.0.10"
             VALUE "InternalName", "VUTdisks.exe"
             VALUE "LegalCopyright", "Copyright (C) 2014"
             VALUE "OriginalFilename", "VUTdisks.exe"
             VALUE "ProductName", "VUT Disk Mapper"
-            VALUE "ProductVersion", "1.0.0.5"
+            VALUE "ProductVersion", "1.0.0.10"
         END
     END
     BLOCK "VarFileInfo"
@@ -84,6 +84,7 @@ BEGIN
     BEGIN
         MENUITEM "&Remove Saved Login Data",    ID_REMOVEREGISTRYDATA
         MENUITEM "R&un at Startup",             ID_RUNATSTARTUP
+        MENUITEM SEPARATOR
         MENUITEM "Windows 8.1/10 Integration",  ID_VISUALMANIFEST
     END
 END
