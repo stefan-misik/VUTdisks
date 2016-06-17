@@ -9,8 +9,8 @@ IDI_WARN                ICON                    "res\\warning.ico"
 
 /******************************************************************************/
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,10
- PRODUCTVERSION 1,0,0,10
+ FILEVERSION 1,0,0,11
+ PRODUCTVERSION 1,0,0,11
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -27,12 +27,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Stefan Misik"
             VALUE "FileDescription", "Utility to map network disks"
-            VALUE "FileVersion", "1.0.0.10"
+            VALUE "FileVersion", "1.0.0.11"
             VALUE "InternalName", "VUTdisks.exe"
             VALUE "LegalCopyright", "Copyright (C) 2014"
             VALUE "OriginalFilename", "VUTdisks.exe"
             VALUE "ProductName", "VUT Disk Mapper"
-            VALUE "ProductVersion", "1.0.0.10"
+            VALUE "ProductVersion", "1.0.0.11"
         END
     END
     BLOCK "VarFileInfo"
@@ -64,7 +64,7 @@ BEGIN
     CONTROL         "",IDC_LOGO,"Static",SS_OWNERDRAW,0,0,255,70
     CONTROL         "",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,24,176,210,8
     LTEXT           "Password",IDC_STATIC,35,131,32,14
-    CONTROL         " 2014 Ing. Stefan Misik\n<A>xmisik00@stud.feec.vutbr.cz</A>",IDC_MAILTO,
+    CONTROL         " 2014 Ing. Stefan Misik\n<A>stefan.misik@phd.feec.vutbr.cz</A>",IDC_MAILTO,
                     "SysLink",0x0,16,206,99,18
     CONTROL         "Save this password",IDC_SAVE_PASS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,76,146,74,10
     ICON            "",IDC_WARNS,28,190,21,20,NOT WS_VISIBLE

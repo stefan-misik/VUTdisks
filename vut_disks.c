@@ -223,7 +223,7 @@ INT_PTR CALLBACK DialogProc(
 			{
 			case IDC_MAILTO:			
 				ShellExecute(NULL, TEXT("open"),
-					TEXT("mailto:xmisik00@stud.feec.vutbr.cz"), NULL,
+					TEXT("mailto:stefan.misik@phd.feec.vutbr.cz"), NULL,
 					NULL, SW_SHOW);
 				return TRUE;
 			
