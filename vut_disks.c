@@ -7,13 +7,14 @@
 /*   Tool to connecting new VUT disks.                                        */
 /*                                                                            */
 /* ========================================================================== */
+#include <Shlwapi.h>
 
 #include "vut_disks.h"
 #include "resource.h"
 
 #include "disk_mapper.h"
 #include "registry.h"
-#include "win_tile_manifest.h"
+#include "win_tile_manifest_gen.h"
 
 
 
@@ -286,10 +287,29 @@ INT_PTR CALLBACK DialogProc(
                     TEXT("created.\r\n")
 					TEXT("\r\nDo you wish to continue?"),
 					g_lpCaption, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
-				{					
-					/* Create Windows 8.1/10 Tile style Manifest if 
-                     * there  is none */
-                    CreateWinTileManifest();
+				{
+                                    win_tile_manifest_t tile;
+                                    char * file_name;
+                                    
+                                    tile.tile_color.red = 0xc2;
+                                    tile.tile_color.green = 0x0e;
+                                    tile.tile_color.blue = 0x1a;
+                                    tile.flags = WIN_TILE_FLAGS_SHOW_NAME;
+                                    
+                                    file_name = (char *)HeapAlloc(g_hHeap, 
+                                            0, sizeof(char) * MAX_PATH);                                   
+                                    
+                                    if(NULL != file_name)
+                                    {
+                                        GetModuleFileNameA(NULL, file_name, 
+                                            MAX_PATH);
+                                        /* Create Windows 8.1/10 Tile style Manifest if 
+                                         * there  is none */
+                                        generate_win_tile_manifest(file_name,
+                                                &tile);
+                                        
+                                        HeapFree(g_hHeap, 0, file_name);
+                                    }
 				}
                 return TRUE;
 			

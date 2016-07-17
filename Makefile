@@ -11,7 +11,7 @@ endif
     
     
 PROJ	= VUTdisks
-SRC	= vut_disks.c registry.c disk_mapper.c win_tile_manifest.c
+SRC	= vut_disks.c registry.c disk_mapper.c win_tile_manifest_gen.c
 RES	= resource.rc
 
 CFLAGS	    = -c 
