@@ -16,13 +16,12 @@
 #include "registry.h"
 #include "win_tile_manifest_gen.h"
 
-
+#define DEFAULT_PASSWD_CHAR 0x25CF
 
 HINSTANCE g_hMyInstance;
 HWND g_hwndMain;
 HANDLE g_hHeap;
 LPTSTR g_lpCaption = TEXT("VUT Disk Mapper");
-
 
 TCHAR g_lpLogin[LOGIN_MAX_LENGTH];
 TCHAR g_lpId[LOGIN_MAX_LENGTH];
@@ -130,7 +129,7 @@ INT_PTR CALLBACK DialogProc(
 )
 {
 	switch (uMsg)
-	{
+	{   
 	case WM_DRAWITEM:
 		if (IDC_LOGO == wParam)
 		{
@@ -247,197 +246,233 @@ INT_PTR CALLBACK DialogProc(
 				DisplayErrMessage(hwndDlg);
 				return TRUE;
 			}
-			return FALSE;			
-		}
+			break;			
+		}        
 		return FALSE;
 
 	case WM_COMMAND:
-	{		
-		switch (HIWORD(wParam))
-		{
-		case 0:
-			switch (LOWORD(wParam))
-			{
-			case ID_REMOVEREGISTRYDATA:
+	{
+        if(0 != lParam)
+        {
+            switch (HIWORD(wParam))
+            {
+            case BN_CLICKED:
+                switch (LOWORD(wParam))
+                {
+                case IDCANCEL:
+                    if (NULL == g_lpMapParam)
+                    {
+                        DestroyWindow(hwndDlg);
+                    }
+                    else
+                    {
+                        if (FALSE == RequestStopMapDisks(g_lpMapParam))
+                        {
+                            /* Fatal Error */
+                            PostQuitMessage(1);
+                        }
+                        else
+                        {
+                            g_bIsCancelling = TRUE;
 
-				if (IDYES == MessageBox(hwndDlg,
-					TEXT("This will remove Login, Id and Password ")\
-					TEXT("stored in Registry database.\r\n")\
-					TEXT("\r\nDo you wish to continue?"),
-					g_lpCaption, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
-				{					
-					DeleteMyRegKey();
-				}
-				
-				return TRUE;
+                            EnableWindow(
+                                GetDlgItem(g_lpMapParam->hwndToNotify, IDCANCEL), 
+                                FALSE);
 
-			case ID_RUNATSTARTUP:
-				if (NULL != g_hMainMenu)
-				{
-					if (GetMenuState(g_hMainMenu, ID_RUNATSTARTUP, MF_BYCOMMAND) &
-						MF_CHECKED)
-					{
-						if (TRUE == RunAtStartup(FALSE))
-						{
-							CheckMenuItem(g_hMainMenu, ID_RUNATSTARTUP,
-								MF_BYCOMMAND | MF_UNCHECKED);
-						}
-					}
-					else
-					{
-						if (TRUE == RunAtStartup(TRUE))
-						{
-							CheckMenuItem(g_hMainMenu, ID_RUNATSTARTUP,
-								MF_BYCOMMAND | MF_CHECKED);
-						}
-					}
-				}
-				return TRUE;
-                
-            case ID_VISUALMANIFEST:
-                if (IDYES == MessageBox(hwndDlg,
-					TEXT("This will create VisualElementsManifest.xml file ")
-					TEXT("which graphically integrates application tile ")
-                    TEXT("in Windows 8.1/10 start menu, when it is ")
-                    TEXT("created.\r\n")
-					TEXT("\r\nDo you wish to continue?"),
-					g_lpCaption, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
-				{
-                                    win_tile_manifest_t tile;
-                                    char * file_name;
-                                    
-                                    tile.tile_color.red = 0xc2;
-                                    tile.tile_color.green = 0x0e;
-                                    tile.tile_color.blue = 0x1a;
-                                    tile.flags = WIN_TILE_FLAGS_SHOW_NAME;
-                                    
-                                    file_name = (char *)HeapAlloc(g_hHeap, 
-                                            0, sizeof(char) * MAX_PATH);                                   
-                                    
-                                    if(NULL != file_name)
-                                    {
-                                        GetModuleFileNameA(NULL, file_name, 
-                                            MAX_PATH);
-                                        /* Create Windows 8.1/10 Tile style Manifest if 
-                                         * there  is none */
-                                        generate_win_tile_manifest(file_name,
-                                                &tile);
-                                        
-                                        HeapFree(g_hHeap, 0, file_name);
-                                    }
-				}
-                return TRUE;
-			
-			case IDCANCEL:
-				if (NULL == g_lpMapParam)
-				{
-					DestroyWindow(hwndDlg);
-				}
-				else
-				{
-					if (FALSE == RequestStopMapDisks(g_lpMapParam))
-					{
-						/* Fatal Error */
-						PostQuitMessage(1);
-					}
-					else
-					{
-						g_bIsCancelling = TRUE;
+                            ProgressBarMarquee(
+                                GetDlgItem(hwndDlg, IDC_PROGRESS), TRUE);
 
-						EnableWindow(
-							GetDlgItem(g_lpMapParam->hwndToNotify, IDCANCEL), 
-							FALSE);
+                            SendDlgItemMessage(hwndDlg, IDC_PROGRESS, 
+                                PBM_SETMARQUEE, TRUE, 0);
+                        }
+                    }
+                    return TRUE;
 
-						ProgressBarMarquee(
-							GetDlgItem(hwndDlg, IDC_PROGRESS), TRUE);
+                case IDOK:
+                    if (NULL == g_lpMapParam)
+                    {
+                        UINT cnt;
 
-						SendDlgItemMessage(hwndDlg, IDC_PROGRESS, 
-							PBM_SETMARQUEE, TRUE, 0);
-					}
-				}
-				return TRUE;
+                        ShowWarningMessage(FALSE);
+                        g_uErrorsCnt = 0;
 
-			case IDOK:
-				if (NULL == g_lpMapParam)
-				{
-					UINT cnt;
+                        /* Read values from input fields */
+                        cnt = GetDlgItemText(hwndDlg, IDC_LOGIN, g_lpLogin, LOGIN_MAX_LENGTH);
+                        cnt *= GetDlgItemText(hwndDlg, IDC_ID, g_lpId, LOGIN_MAX_LENGTH);
+                        cnt *= GetDlgItemText(hwndDlg, IDC_PASSWD, g_lpPassword, 
+                            PASSWORD_MAX_LENGTH);
 
-					ShowWarningMessage(FALSE);
-					g_uErrorsCnt = 0;
+                        /* If all fields were filled-in */
+                        if (cnt > 0)
+                        {
+                            WriteRegistry(hwndDlg);
 
-					/* Read values from input fields */
-					cnt = GetDlgItemText(hwndDlg, IDC_LOGIN, g_lpLogin, LOGIN_MAX_LENGTH);
-					cnt *= GetDlgItemText(hwndDlg, IDC_ID, g_lpId, LOGIN_MAX_LENGTH);
-					cnt *= GetDlgItemText(hwndDlg, IDC_PASSWD, g_lpPassword, 
-						PASSWORD_MAX_LENGTH);
+                            /* Begin Disk Mapping */
+                            g_lpMapParam = BeginMapDisks(hwndDlg, g_lpLogin,
+                                g_lpId, g_lpPassword);
 
-					/* If all fields were filled-in */
-					if (cnt > 0)
-					{
-						WriteRegistry(hwndDlg);
+                            if (NULL != g_lpMapParam)
+                            {
+                                /* Update UI */
+                                EnableWindow(GetDlgItem(hwndDlg, IDOK), FALSE);
+                                EnableWindow(GetDlgItem(hwndDlg, IDC_LOGIN), FALSE);
+                                EnableWindow(GetDlgItem(hwndDlg, IDC_ID), FALSE);
+                                EnableWindow(GetDlgItem(hwndDlg, IDC_PASSWD), FALSE);
+                                EnableWindow(GetDlgItem(hwndDlg, IDC_SAVE_PASS), FALSE);
 
-						/* Begin Disk Mapping */
-						g_lpMapParam = BeginMapDisks(hwndDlg, g_lpLogin,
-							g_lpId, g_lpPassword);
+                                ProgressBarMarquee(GetDlgItem(hwndDlg, IDC_PROGRESS), FALSE);
+                                SendDlgItemMessage(hwndDlg, IDC_PROGRESS, PBM_SETSTATE, PBST_NORMAL, 0);
+                                SendDlgItemMessage(hwndDlg, IDC_PROGRESS, PBM_SETRANGE, 0,
+                                    MAKELPARAM(0, (g_lpMapParam->uDisksCnt)));
+                                SendDlgItemMessage(hwndDlg, IDC_PROGRESS,
+                                    PBM_SETPOS, 0, 0);
 
-						if (NULL != g_lpMapParam)
-						{
-							/* Update UI */
-							EnableWindow(GetDlgItem(hwndDlg, IDOK), FALSE);
-							EnableWindow(GetDlgItem(hwndDlg, IDC_LOGIN), FALSE);
-							EnableWindow(GetDlgItem(hwndDlg, IDC_ID), FALSE);
-							EnableWindow(GetDlgItem(hwndDlg, IDC_PASSWD), FALSE);
-							EnableWindow(GetDlgItem(hwndDlg, IDC_SAVE_PASS), FALSE);
+                                SetDlgItemText(hwndDlg, IDCANCEL, TEXT("Cancel"));
+                                g_bErrors = FALSE;
+                            }
+                            else
+                            {
+                                MessageBox(hwndDlg, TEXT("Could not map disks."), g_lpCaption, MB_OK | MB_ICONHAND);
+                            }
 
-							ProgressBarMarquee(GetDlgItem(hwndDlg, IDC_PROGRESS), FALSE);
-							SendDlgItemMessage(hwndDlg, IDC_PROGRESS, PBM_SETSTATE, PBST_NORMAL, 0);
-							SendDlgItemMessage(hwndDlg, IDC_PROGRESS, PBM_SETRANGE, 0,
-								MAKELPARAM(0, (g_lpMapParam->uDisksCnt)));
-							SendDlgItemMessage(hwndDlg, IDC_PROGRESS,
-								PBM_SETPOS, 0, 0);
+                            /* Zero password memory */
+                            ZeroMemory(g_lpPassword, PASSWORD_MAX_LENGTH * sizeof(TCHAR));
+                        }
+                        else
+                        {
+                            MessageBox(hwndDlg, TEXT("Please fill in all of the required fields"),
+                                g_lpCaption, MB_OK | MB_ICONINFORMATION);
+                        }
+                    }
+                    return TRUE;
+                    
+                case IDC_SHOWP:
+                    {
+                        HWND hPassWnd;
+                        
+                        /* Get the Password window handle */
+                        hPassWnd = GetDlgItem(hwndDlg, IDC_PASSWD);                        
+                        
+                        if(BST_CHECKED == 
+                            IsDlgButtonChecked(hwndDlg, IDC_SHOWP))
+                        {
+                            SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 
+                                (WPARAM)DEFAULT_PASSWD_CHAR, 0);
 
-							SetDlgItemText(hwndDlg, IDCANCEL, TEXT("Cancel"));
-							g_bErrors = FALSE;
-						}
-						else
-						{
-							MessageBox(hwndDlg, TEXT("Could not map disks."), g_lpCaption, MB_OK | MB_ICONHAND);
-						}
+                            SendDlgItemMessage(hwndDlg, IDC_SHOWP, BM_SETCHECK,
+                                (WPARAM)BST_UNCHECKED, 0);                        
+                        }
+                        else
+                        {
+                            SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 0, 0);
 
-						/* Zero password memory */
-						ZeroMemory(g_lpPassword, PASSWORD_MAX_LENGTH * sizeof(TCHAR));
-					}
-					else
-					{
-						MessageBox(hwndDlg, TEXT("Please fill in all of the required fields"),
-							g_lpCaption, MB_OK | MB_ICONINFORMATION);
-					}
-				}
-				return TRUE;
+                            SendDlgItemMessage(hwndDlg, IDC_SHOWP, BM_SETCHECK,
+                                (WPARAM)BST_CHECKED, 0);
+                        }
+                        
+                        InvalidateRect(hPassWnd, NULL, TRUE);                        
+                        return TRUE;
+                    }
+                }
+                break;
 
-			}
-			break;
+            case EN_CHANGE:
+                switch (LOWORD(wParam))
+                {
+                case IDC_LOGIN:
+                case IDC_ID:
 
-		case EN_CHANGE:
-			switch (LOWORD(wParam))
-			{
-			case IDC_LOGIN:
-			case IDC_ID:
+                    /* Clear Password field */
+                    SetDlgItemText(hwndDlg, IDC_PASSWD, NULL);
 
-				/* Clear Password field */
-				SetDlgItemText(hwndDlg, IDC_PASSWD, NULL);
+                case IDC_PASSWD:
+                    /* Uncheck 'Save Password' */
+                    SendDlgItemMessage(hwndDlg, IDC_SAVE_PASS, BM_SETCHECK,
+                        (WPARAM)BST_UNCHECKED, 0);
+                    return TRUE;
+                }
+                return FALSE;            
+            }            
+        }
+        else if(0 == HIWORD(wParam))
+        {
+            switch (LOWORD(wParam))
+            {
+                case ID_REMOVEREGISTRYDATA:
 
-			case IDC_PASSWD:
-				/* Uncheck 'Save Password' */
-				SendDlgItemMessage(hwndDlg, IDC_SAVE_PASS, BM_SETCHECK,
-					(WPARAM)BST_UNCHECKED, 0);
-				return TRUE;
-			}
-			return FALSE;
+                    if (IDYES == MessageBox(hwndDlg,
+                        TEXT("This will remove Login, Id and Password ")\
+                        TEXT("stored in Registry database.\r\n")\
+                        TEXT("\r\nDo you wish to continue?"),
+                        g_lpCaption, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
+                    {					
+                        DeleteMyRegKey();
+                    }
 
-		default:
-			break;
-		}
+                    return TRUE;
+
+                case ID_RUNATSTARTUP:
+                    if (NULL != g_hMainMenu)
+                    {
+                        if (GetMenuState(g_hMainMenu, ID_RUNATSTARTUP, MF_BYCOMMAND) &
+                            MF_CHECKED)
+                        {
+                            if (TRUE == RunAtStartup(FALSE))
+                            {
+                                CheckMenuItem(g_hMainMenu, ID_RUNATSTARTUP,
+                                    MF_BYCOMMAND | MF_UNCHECKED);
+                            }
+                        }
+                        else
+                        {
+                            if (TRUE == RunAtStartup(TRUE))
+                            {
+                                CheckMenuItem(g_hMainMenu, ID_RUNATSTARTUP,
+                                    MF_BYCOMMAND | MF_CHECKED);
+                            }
+                        }
+                    }
+                    return TRUE;
+
+                case ID_VISUALMANIFEST:
+                    if (IDYES == MessageBox(hwndDlg,
+                        TEXT("This will create VisualElementsManifest.xml file ")
+                        TEXT("which graphically integrates application tile ")
+                        TEXT("in Windows 8.1/10 start menu, when it is ")
+                        TEXT("created.\r\n")
+                        TEXT("\r\nDo you wish to continue?"),
+                        g_lpCaption, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
+                    {
+                                        win_tile_manifest_t tile;
+                                        char * file_name;
+
+                                        tile.tile_color.red = 0xc2;
+                                        tile.tile_color.green = 0x0e;
+                                        tile.tile_color.blue = 0x1a;
+                                        tile.flags = WIN_TILE_FLAGS_SHOW_NAME;
+
+                                        file_name = (char *)HeapAlloc(g_hHeap, 
+                                                0, sizeof(char) * MAX_PATH);                                   
+
+                                        if(NULL != file_name)
+                                        {
+                                            GetModuleFileNameA(NULL, file_name, 
+                                                MAX_PATH);
+                                            /* Create Windows 8.1/10 Tile style Manifest if 
+                                             * there  is none */
+                                            generate_win_tile_manifest(file_name,
+                                                    &tile);
+
+                                            HeapFree(g_hHeap, 0, file_name);
+                                        }
+                    }
+                    return TRUE;
+                    
+                case ID_EXIT:
+                    PostMessage(hwndDlg, WM_CLOSE, 0, 0);
+                    return TRUE;
+            }
+        }
 		return FALSE;
 	}
 
@@ -583,10 +618,10 @@ HWND CreateToolTip(int toolID, HWND hDlg, PTSTR pszText, INT iMaxWidth)
 
 
 /******************************************************************************/
-INT WINAPI WinMain(
+INT WINAPI wWinMain(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
-	LPSTR lpCmdLine,
+	LPWSTR lpCmdLine,
 	int nCmdShow
 	)
 {

@@ -14,8 +14,8 @@ PROJ	= VUTdisks
 SRC	= vut_disks.c registry.c disk_mapper.c win_tile_manifest_gen.c
 RES	= resource.rc
 
-CFLAGS	    = -c 
-LDFLAGS	    = -static  -mwindows 
+CFLAGS	    = -c -municode
+LDFLAGS	    = -static  -mwindows -municode
 LDLIBS	    = -lcomctl32 -lmpr -lcrypt32 -ladvapi32 -luser32 -lkernel32 -lshlwapi
 
 ################################################################################
