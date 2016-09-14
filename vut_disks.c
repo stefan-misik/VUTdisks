@@ -107,6 +107,21 @@ VOID DisplayErrMessage(HWND hwndParent)
 }
 
 /******************************************************************************/
+HMONITOR MonitorFromCursor(
+    VOID
+)
+{
+    POINT pt;
+    if(!GetCursorPos(&pt))
+    {
+        pt.x = 0;
+        pt.y = 0;
+    }
+    
+    return MonitorFromPoint(pt, MONITOR_DEFAULTTOPRIMARY);
+}
+
+/******************************************************************************/
 INT_PTR CALLBACK DialogProc(
     HWND hwndDlg,
     UINT uMsg,
@@ -482,8 +497,7 @@ INT_PTR CALLBACK DialogProc(
 		
 		/* Move windows to the center of monitor */
 		mi.cbSize = sizeof(MONITORINFO);
-		if (FALSE != GetMonitorInfo(
-			MonitorFromWindow(hwndDlg, MONITOR_DEFAULTTOPRIMARY), &mi))
+		if (FALSE != GetMonitorInfo(MonitorFromCursor(), &mi))
 		{
 			RECT rc;
 			if (TRUE == GetWindowRect(hwndDlg, &rc))
