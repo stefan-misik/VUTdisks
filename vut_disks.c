@@ -627,7 +627,7 @@ INT WINAPI wWinMain(
 {
 	MSG msg;
 	HICON hIcon;
-	HWND hwndPassTooltip;      
+	HWND hwndPassTooltip, hwndShowPTooltip;      
         
         
 	g_hMyInstance = hInstance;
@@ -654,12 +654,16 @@ INT WINAPI wWinMain(
 
 	if (NULL == g_hwndMain)
 	{
+        DWORD dwErr = GetLastError();
 		MessageBox(NULL, TEXT("Application Initialization Failed!"),
 			TEXT("Error!"), MB_OK | MB_ICONHAND);
-		return -1;
+		return dwErr;
 	}	
 
-	/* Create Tooltip */
+	/* Create Tooltips */
+    hwndShowPTooltip = CreateToolTip(IDC_SHOWP, g_hwndMain,
+            TEXT("Show password"), 400);
+    
 	hwndPassTooltip = CreateToolTip(IDC_SAVE_PASS, g_hwndMain, 
 		TEXT("Password will be stored in encrypted form inside\r\n")\
 		TEXT("Windows Registry database. Encryption will be\r\n")\
@@ -726,11 +730,16 @@ INT WINAPI wWinMain(
 	/* Delete logo image object*/
 	DeleteObject(g_hLogoImage);
 
-	/* Destroy password tooltip window */
+	/* Destroy tooltip windows */
 	if (NULL != hwndPassTooltip)
 	{
 		DestroyWindow(hwndPassTooltip);
 	}
+    
+    if (NULL != hwndShowPTooltip)
+    {
+        DestroyWindow(hwndShowPTooltip);
+    }
 
 	/* Close My Reg Key */
 	CloseMyRegKey();
