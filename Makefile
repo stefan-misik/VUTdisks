@@ -41,8 +41,12 @@ EXECUTABLE = $(addsuffix .exe,$(PROJ))
 
 # Debug flags
 ifeq ($(DBG),y)
-    CFLAGS  += -D_DEBUG -ggdb -Wall
-    LDFLAGS += -ggdb
+    CFLAGS  += -D_DEBUG
+    DCFLAGS  = -ggdb -Wall
+    DLDFLAGS = -ggdb
+else
+    DCFLAGS  =
+    DLDFLAGS =
 endif
 ################################################################################
 
@@ -51,13 +55,13 @@ endif
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ)  -o $@ $(LDLIBS)
+	$(CC) $(LDFLAGS) $(DLDFLAGS) $(OBJ)  -o $@ $(LDLIBS)
 
 %.o: %.c	
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $(DCFLAGS) $< -o $@
 
 defs.o: defs.c
-	$(CC) $(CFLAGS) $(PROJ_DEFINES) $< -o $@
+	$(CC) $(CFLAGS) $(DCFLAGS) $(PROJ_DEFINES) $< -o $@
 	
 %.o: %.rc	
 	$(WINDRES) $(CFLAGS) $(subst \",\\\",$(PROJ_DEFINES)) -i $< -o $@
