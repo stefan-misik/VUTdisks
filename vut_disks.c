@@ -11,7 +11,7 @@
 
 #include "vut_disks.h"
 #include "resource.h"
-
+#include "defs.h"
 #include "disk_mapper.h"
 #include "registry.h"
 #include "win_tile_manifest_gen.h"
@@ -21,7 +21,8 @@
 HINSTANCE g_hMyInstance;
 HWND g_hwndMain;
 HANDLE g_hHeap;
-LPTSTR g_lpCaption = TEXT("VUT Disk Mapper");
+
+LPTSTR g_lpCaption = TEXT(PROJECT_DESC);
 
 TCHAR g_lpLogin[LOGIN_MAX_LENGTH];
 TCHAR g_lpId[LOGIN_MAX_LENGTH];
@@ -470,6 +471,11 @@ INT_PTR CALLBACK DialogProc(
                     
                 case ID_EXIT:
                     PostMessage(hwndDlg, WM_CLOSE, 0, 0);
+                    return TRUE;
+                
+                case ID_VERSIONMENU:
+                    ShellExecute(NULL, TEXT("open"), TEXT(PROJECT_WEB), NULL,
+                        NULL, SW_SHOW);
                     return TRUE;
             }
         }

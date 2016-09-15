@@ -1,4 +1,5 @@
 #include "resource.h"
+#include "defs.h"
 
 /******************************************************************************/
 1 RT_MANIFEST "res\\VUTdisks.manifest"
@@ -9,8 +10,8 @@ IDI_WARN                ICON                    "res\\warning.ico"
 
 /******************************************************************************/
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,13
- PRODUCTVERSION 1,0,0,13
+ FILEVERSION PROJECT_VER_1,PROJECT_VER_2,PROJECT_VER_3,PROJECT_VER_4
+ PRODUCTVERSION PROJECT_VER_1,PROJECT_VER_2,PROJECT_VER_3,PROJECT_VER_4
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -27,12 +28,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Stefan Misik"
             VALUE "FileDescription", "VUTdisks"
-            VALUE "FileVersion", "1.0.0.13"
-            VALUE "InternalName", "VUTdisks.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2014"
-            VALUE "OriginalFilename", "VUTdisks.exe"
-            VALUE "ProductName", "VUT Disk Mapper"
-            VALUE "ProductVersion", "1.0.0.13"
+            VALUE "FileVersion", PROJECT_VER
+            VALUE "InternalName", PROJECT_NAME
+            VALUE "LegalCopyright", PROJECT_CPYR
+            VALUE "OriginalFilename", PROJECT_NAME ".exe"
+            VALUE "ProductName", PROJECT_DESC 
+            VALUE "ProductVersion", PROJECT_VER
         END
     END
     BLOCK "VarFileInfo"
@@ -49,7 +50,7 @@ IDD_MAIN_WND DIALOGEX 0, 0, 255, 231
 STYLE   DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | 
         WS_OVERLAPPED | WS_VISIBLE | WS_CAPTION | WS_SYSMENU 
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "VUT Disk Mapper"
+CAPTION PROJECT_DESC
 MENU IDR_MENU
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
@@ -65,7 +66,7 @@ BEGIN
     CONTROL         "",IDC_LOGO,"Static",SS_OWNERDRAW,0,0,255,70
     CONTROL         "",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,24,176,210,8
     LTEXT           "Password",IDC_STATIC,35,131,32,14
-    CONTROL         " 2014 Ing. Stefan Misik\n<A>stefan.misik@phd.feec.vutbr.cz</A>",IDC_MAILTO,
+    CONTROL         PROJECT_AUTHOR "\n<A>stefan.misik@phd.feec.vutbr.cz</A>",IDC_MAILTO,
                     "SysLink",0x0,16,206,99,18
     CONTROL         "Save this password",IDC_SAVE_PASS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,76,146,74,10
     ICON            "",IDC_WARNS,28,190,21,20,NOT WS_VISIBLE
@@ -90,4 +91,6 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_EXIT
     END
+    MENUITEM SEPARATOR
+    MENUITEM PROJECT_VER,                       ID_VERSIONMENU
 END

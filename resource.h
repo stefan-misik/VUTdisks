@@ -24,4 +24,5 @@
 #define ID_RUNATSTARTUP                 40003
 #define ID_VISUALMANIFEST               40004
 #define ID_EXIT                         40005
+#define ID_VERSIONMENU                  40100
 
