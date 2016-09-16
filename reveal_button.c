@@ -3,10 +3,29 @@
 
 #define REVB_EXTRA_STATE 0
 #define REVB_EXTRA_ICON REVB_EXTRA_STATE + sizeof(LONG)
+#define REVB_EXTRA_ICON_SIZE REVB_EXTRA_ICON + sizeof(HICON)
 
-#define REVB_EXTRA_TOTAL REVB_EXTRA_ICON + sizeof(HICON)
+#define REVB_EXTRA_TOTAL REVB_EXTRA_ICON_SIZE + sizeof(LONG)
+
+typedef enum tagREVBUTSTATE
+{
+    RBS_DEFAULT = 0,
+    RBS_ACTIVE
+} REVBUTSTATE, *LPREVBUTSTATE;
 
 
+/******************************************************************************/
+static VOID RevButtonSetState(
+    HWND hWnd,
+    LONG lState
+)
+{
+    /* Change state variable */
+    SetWindowLong(hWnd, REVB_EXTRA_STATE, lState);
+    
+    /* Invalidate the window to be redrawn */
+    InvalidateRect(hWnd, NULL, TRUE);
+}
 
 /******************************************************************************/
 static VOID RevButtonNotifyParent(
@@ -74,8 +93,13 @@ static VOID RevButtonLoadIcon(
         hIcon = (HICON)LoadImage(g_hMyInstance, MAKEINTRESOURCE(IDI_REVEAL), 
                 IMAGE_ICON, iDim, iDim, LR_DEFAULTCOLOR);
     }
+    else
+    {
+        iDim = 0;
+    }
     
     SetWindowLongPtr(hWnd, REVB_EXTRA_ICON, (LONG_PTR)hIcon);
+    SetWindowLong(hWnd, REVB_EXTRA_ICON_SIZE, (LONG)iDim);
 }
 
 /******************************************************************************/
@@ -85,9 +109,46 @@ static LRESULT RevButtonCreate(
 )
 {  
     /* Init extra fields */
-    SetWindowLong(hWnd, REVB_EXTRA_STATE, (LONG)0);    
+    SetWindowLong(hWnd, REVB_EXTRA_STATE, (LONG)RBS_DEFAULT);    
     SetWindowLongPtr(hWnd, REVB_EXTRA_ICON, (LONG_PTR)NULL);
+    SetWindowLong(hWnd, REVB_EXTRA_ICON_SIZE, (LONG)0);  
     
+    return 0;
+}
+
+/******************************************************************************/
+static LRESULT RevButtonPaint(
+    HWND hWnd
+)
+{
+    HICON hIcon;
+    PAINTSTRUCT ps;
+    
+    if(NULL != BeginPaint(hWnd, &ps))
+    {   
+        /* Get Icon */
+        hIcon = (HICON)GetWindowLongPtr(hWnd, REVB_EXTRA_ICON);
+        if(NULL != hIcon)
+        {
+            INT iDim, iOffset;
+            RECT rc;
+            LONG lState = GetWindowLong(hWnd, REVB_EXTRA_STATE);
+            
+            GetWindowRect(hWnd, &rc);
+            
+            /* Get Icon size */
+            iDim = (int)GetWindowLong(hWnd, REVB_EXTRA_ICON_SIZE);  
+            
+            iOffset = RBS_ACTIVE == lState ? 1 : 0;
+            
+            /* Draw Icon */
+            DrawIconEx(ps.hdc, 
+                (rc.right - rc.left - iDim) / 2 + iOffset, 
+                (rc.bottom - rc.top - iDim) / 2 + iOffset, 
+                hIcon, iDim, iDim, 0, NULL, DI_NORMAL);
+        }        
+        EndPaint(hWnd, &ps);
+    }
     return 0;
 }
 
@@ -119,8 +180,7 @@ static LRESULT CALLBACK RevButtonWindowProc(
             }
             
             break;
-        }
-            
+        }            
         
     /* Size Window */
     case WM_SIZE:
@@ -128,10 +188,17 @@ static LRESULT CALLBACK RevButtonWindowProc(
         RevButtonLoadIcon(hWnd, (INT)LOWORD(lParam), (INT)LOWORD(lParam));
         break;
         
+    /* Paint the button */
+    case WM_PAINT:
+        return RevButtonPaint(hWnd);
+        
     /* Mouse button down */
     case WM_LBUTTONDOWN:
         /* Notify Parent */
         RevButtonNotifyParent(hWnd, RB_REVEAL);
+        
+        /* Change State */
+        RevButtonSetState(hWnd, RBS_ACTIVE);
         
         /* Capture the mouse */
         SetCapture(hWnd);         
@@ -140,15 +207,21 @@ static LRESULT CALLBACK RevButtonWindowProc(
     /* Mouse button up */    
     case WM_LBUTTONUP:
         {
-            //LONG lState = GetWindowLong(hWnd, REVB_STATE);
+            LONG lState = GetWindowLong(hWnd, REVB_EXTRA_STATE);
             /* If mouse is captured by this window, release it */
-            if(hWnd == GetCapture())
+            if(RBS_ACTIVE == lState)
             {
                 /* Notify Parent */
                 RevButtonNotifyParent(hWnd, RB_HIDE);
                 
+                /* Change State */
+                RevButtonSetState(hWnd, RBS_DEFAULT);
+            } 
+            
+            if(hWnd == GetCapture())
+            {
                 ReleaseCapture();
-            }        
+            }
             return 0;
         }
     
@@ -175,7 +248,7 @@ ATOM RevButtonRegisterClass(
     wce.hInstance = g_hMyInstance;
     wce.hIcon = NULL;
     wce.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wce.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+    wce.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
     wce.lpszMenuName = NULL;
     wce.lpszClassName = TEXT(REVEAL_BUTTON_CLASS);
     wce.hIconSm = NULL;
