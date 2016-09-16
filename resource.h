@@ -1,3 +1,5 @@
+#ifndef _RESOURCE_H
+#define _RESOURCE_H
 
 #include "common.h"
 
@@ -7,6 +9,7 @@
 #define IDI_MAIN                        103
 #define IDI_WARN                        104
 #define IDI_LOGO_IMAGE                  105
+#define IDI_REVEAL                      106
 
 #define IDR_MENU                        40000
     #define ID_REMOVEREGISTRYDATA           40001
@@ -37,4 +40,6 @@
     #define IDC_LICTEXT                     1036
     #define IDC_GET_LATEST                  1037
     #define IDC_MAILTO                      1038
+
+#endif /* _RESOURCE_H */
 
