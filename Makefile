@@ -15,7 +15,8 @@ endif
     
 # Project settings    
 PROJ	= VUTdisks
-SRC	= vut_disks.c registry.c disk_mapper.c win_tile_manifest_gen.c
+SRC	= vut_disks.c registry.c disk_mapper.c win_tile_manifest_gen.c  \
+          reveal_button.c
 RES	= resource.rc
 
 # Compile flags

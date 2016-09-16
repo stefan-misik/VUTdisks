@@ -15,6 +15,7 @@
 #include "disk_mapper.h"
 #include "registry.h"
 #include "win_tile_manifest_gen.h"
+#include "reveal_button.h"
 
 #define DEFAULT_PASSWD_CHAR 0x25CF
 
@@ -345,35 +346,7 @@ INT_PTR CALLBACK DialogProc(
                                 g_lpCaption, MB_OK | MB_ICONINFORMATION);
                         }
                     }
-                    return TRUE;
-                    
-                case IDC_SHOWP:
-                    {
-                        HWND hPassWnd;
-                        
-                        /* Get the Password window handle */
-                        hPassWnd = GetDlgItem(hwndDlg, IDC_PASSWD);                        
-                        
-                        if(BST_CHECKED == 
-                            IsDlgButtonChecked(hwndDlg, IDC_SHOWP))
-                        {
-                            SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 
-                                (WPARAM)DEFAULT_PASSWD_CHAR, 0);
-
-                            SendDlgItemMessage(hwndDlg, IDC_SHOWP, BM_SETCHECK,
-                                (WPARAM)BST_UNCHECKED, 0);                        
-                        }
-                        else
-                        {
-                            SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 0, 0);
-
-                            SendDlgItemMessage(hwndDlg, IDC_SHOWP, BM_SETCHECK,
-                                (WPARAM)BST_CHECKED, 0);
-                        }
-                        
-                        InvalidateRect(hPassWnd, NULL, TRUE);                        
-                        return TRUE;
-                    }
+                    return TRUE;               
                 }
                 break;
 
@@ -387,13 +360,36 @@ INT_PTR CALLBACK DialogProc(
                     SetDlgItemText(hwndDlg, IDC_PASSWD, NULL);
 
                 case IDC_PASSWD:
-                    /* Uncheck 'Save Password' */
+                    /* Un-check 'Save Password' */
                     SendDlgItemMessage(hwndDlg, IDC_SAVE_PASS, BM_SETCHECK,
                         (WPARAM)BST_UNCHECKED, 0);
                     return TRUE;
                 }
                 return FALSE;            
-            }            
+            }
+            
+            if(LOWORD(wParam) == IDC_SHOWP)
+            {
+                HWND hPassWnd;
+                
+                /* Get the Password window handle */
+                hPassWnd = GetDlgItem(hwndDlg, IDC_PASSWD);   
+                
+                switch(HIWORD(wParam))
+                {
+                case RB_REVEAL:
+                    SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 
+                        (WPARAM)0, 0);                    
+                    break;
+                    
+                case RB_HIDE:
+                    SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 
+                        (WPARAM)DEFAULT_PASSWD_CHAR, 0);
+                    break;                        
+                }
+                InvalidateRect(hPassWnd, NULL, TRUE);  
+                return TRUE;
+            }
         }
         else if(0 == HIWORD(wParam))
         {
@@ -631,19 +627,32 @@ INT WINAPI wWinMain(
 	int nCmdShow
 	)
 {
-	MSG msg;
-	HICON hIcon;
-	HWND hwndPassTooltip, hwndShowPTooltip;      
-        
-        
-	g_hMyInstance = hInstance;
-    
-    
-	/* Get Process heap */
-	g_hHeap = GetProcessHeap();
+    MSG msg;
+    HICON hIcon;
+    HWND hwndPassTooltip, hwndShowPTooltip;    
+    ATOM aRevButtonClass;
+
+
+    /* Store handle to the current instance */
+    g_hMyInstance = hInstance;
+
+
+    /* Get Process heap */
+    g_hHeap = GetProcessHeap();
     
     /* Open Registry Key */
 	OpenMyRegKey();
+    
+    /* Register reveal button class */
+    aRevButtonClass = RevButtonRegisterClass();
+    
+    if(0 == aRevButtonClass)
+    {
+        DWORD dwErr = GetLastError();
+		MessageBox(NULL, TEXT("Could not register window class."),
+			TEXT("Error"), MB_OK | MB_ICONHAND);
+		return dwErr;
+    }
 
 	g_hSmallWarnIcon = LoadImage(g_hMyInstance, MAKEINTRESOURCE(IDI_WARN),
 		IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
@@ -661,8 +670,8 @@ INT WINAPI wWinMain(
 	if (NULL == g_hwndMain)
 	{
         DWORD dwErr = GetLastError();
-		MessageBox(NULL, TEXT("Application Initialization Failed!"),
-			TEXT("Error!"), MB_OK | MB_ICONHAND);
+		MessageBox(NULL, TEXT("Application Initialization Failed."),
+			TEXT("Error"), MB_OK | MB_ICONHAND);
 		return dwErr;
 	}	
 
