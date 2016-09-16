@@ -16,6 +16,7 @@
 #include "registry.h"
 #include "win_tile_manifest_gen.h"
 #include "about_dialog.h"
+#include "reveal_button.h"
 
 #define DEFAULT_PASSWD_CHAR 0x25CF
 
@@ -45,8 +46,8 @@ static BOOL WriteResourceToFile(
     HRSRC hRsrc
 )
 {
-    BOOL bRet = FALSE;    
-    
+    BOOL bRet = FALSE;
+
     /* Check passed values */
     if(INVALID_HANDLE_VALUE != hFile && NULL != hRsrc)
     {
@@ -55,13 +56,13 @@ static BOOL WriteResourceToFile(
         DWORD dwPos;
         DWORD dwWritten;
         HGLOBAL hgRsrc;
-        
+
         /* Get Resource size */
         dwSize = SizeofResource(g_hMyInstance, hRsrc);
         /* Get Resource data */
         hgRsrc = LoadResource(g_hMyInstance, hRsrc);
         lpData = LockResource(hgRsrc);
-        
+
         if(NULL != lpData && 0 != dwSize)
         {
             dwPos = 0;
@@ -85,9 +86,9 @@ static BOOL WriteResourceToFile(
                 }
             }
             bRet = TRUE;
-        }        
+        }
     }
-    
+
     return bRet;
 }
 
@@ -97,26 +98,26 @@ static VOID DoWindows10Integration(VOID)
     win_tile_manifest_t tile;
     char * file_name;
     HANDLE hLogoImage;
-    
+
     tile.tile_color.red = 0xdc;
     tile.tile_color.green = 0x00;
     tile.tile_color.blue = 0x21;
     tile.flags = WIN_TILE_FLAGS_SHOW_NAME;
     tile.logo150 = NULL;
     tile.logo70 = NULL;
-    
+
     /* Create DLL file */
     hLogoImage = CreateFile(
         TEXT(LOGO_IMAGE_NAME),
         GENERIC_WRITE,
         0, NULL,
-        CREATE_ALWAYS, 
-        FILE_ATTRIBUTE_NORMAL, 
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
         NULL);
 
     if(INVALID_HANDLE_VALUE != hLogoImage)
     {
-        /* Write resource data */               
+        /* Write resource data */
         if(WriteResourceToFile(hLogoImage,
             FindResource(
                 g_hMyInstance,
@@ -126,20 +127,20 @@ static VOID DoWindows10Integration(VOID)
         {
             tile.logo150 = LOGO_IMAGE_NAME;
         }
-        
+
         /* Close file */
         CloseHandle(hLogoImage);
     }
-    
 
-    file_name = (char *)HeapAlloc(g_hHeap, 
-            0, sizeof(char) * MAX_PATH);                                   
+
+    file_name = (char *)HeapAlloc(g_hHeap,
+            0, sizeof(char) * MAX_PATH);
 
     if(NULL != file_name)
     {
-        GetModuleFileNameA(NULL, file_name, 
+        GetModuleFileNameA(NULL, file_name,
             MAX_PATH);
-        /* Create Windows 8.1/10 Tile style Manifest if 
+        /* Create Windows 8.1/10 Tile style Manifest if
          * there  is none */
         generate_win_tile_manifest(file_name,
                 &tile);
@@ -190,11 +191,11 @@ VOID DisplayErrMessage(HWND hwndParent)
 	UINT uDisk;
 	static const LPTSTR lpDisks[] = {
 	TEXT("P: "),
-	TEXT("Q: "), 
-	TEXT("R: "), 
-	TEXT("S: "), 
+	TEXT("Q: "),
+	TEXT("R: "),
+	TEXT("S: "),
 	TEXT("T: ") };
-    
+
     /* Allocate memory */
     lpErrMessage = (TCHAR *)HeapAlloc(g_hHeap, 0, sizeof(TCHAR) *
             ERROR_MESSAGE_BUFFER_LENGTH);
@@ -203,7 +204,7 @@ VOID DisplayErrMessage(HWND hwndParent)
 
 	uPos += FormatMessage(FORMAT_MESSAGE_FROM_STRING,
 		TEXT("Disk mapping finished with following results:\r\n\r\n"),
-		0, 0, (LPTSTR)(((UINT_PTR)lpErrMessage) + (uPos * sizeof(TCHAR))), 
+		0, 0, (LPTSTR)(((UINT_PTR)lpErrMessage) + (uPos * sizeof(TCHAR))),
 		(ERROR_MESSAGE_BUFFER_LENGTH - uPos), NULL);
 
 	for (uDisk = 0; uDisk < g_uErrorsCnt; uDisk++)
@@ -214,13 +215,13 @@ VOID DisplayErrMessage(HWND hwndParent)
 			(ERROR_MESSAGE_BUFFER_LENGTH - uPos), NULL);
 
 		uPos += FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL,
-			g_lpdwErrors[uDisk], 0, 
+			g_lpdwErrors[uDisk], 0,
 			(LPTSTR)(((UINT_PTR)lpErrMessage) + (uPos * sizeof(TCHAR))),
 			(ERROR_MESSAGE_BUFFER_LENGTH - uPos), NULL);
 	}
 
 	MessageBox(hwndParent, lpErrMessage, g_lpCaption, MB_OK);
-    
+
     /* Free memory */
     HeapFree(g_hHeap, 0, lpErrMessage);
 }
@@ -236,7 +237,7 @@ HMONITOR MonitorFromCursor(
         pt.x = 0;
         pt.y = 0;
     }
-    
+
     return MonitorFromPoint(pt, MONITOR_DEFAULTTOPRIMARY);
 }
 
@@ -249,7 +250,7 @@ INT_PTR CALLBACK DialogProc(
 )
 {
 	switch (uMsg)
-	{   
+	{
 	case WM_DRAWITEM:
 		if (IDC_LOGO == wParam)
 		{
@@ -329,7 +330,7 @@ INT_PTR CALLBACK DialogProc(
 			if (TRUE == g_bIsCancelling)
 			{
 				g_bIsCancelling = FALSE;
-				ProgressBarMarquee(GetDlgItem(hwndToNotify, IDC_PROGRESS), 
+				ProgressBarMarquee(GetDlgItem(hwndToNotify, IDC_PROGRESS),
 					FALSE);
 
 
@@ -353,15 +354,15 @@ INT_PTR CALLBACK DialogProc(
 		switch (((LPNMHDR)lParam)->code)
 		{
 		case NM_CLICK:
-		case NM_RETURN:			
+		case NM_RETURN:
 			switch (((LPNMHDR)lParam)->idFrom)
-			{		
+			{
 			case IDC_ERR_LIST:
 				DisplayErrMessage(hwndDlg);
 				return TRUE;
 			}
-			break;			
-		}        
+			break;
+		}
 		return FALSE;
 
 	case WM_COMMAND:
@@ -390,13 +391,13 @@ INT_PTR CALLBACK DialogProc(
                             g_bIsCancelling = TRUE;
 
                             EnableWindow(
-                                GetDlgItem(g_lpMapParam->hwndToNotify, IDCANCEL), 
+                                GetDlgItem(g_lpMapParam->hwndToNotify, IDCANCEL),
                                 FALSE);
 
                             ProgressBarMarquee(
                                 GetDlgItem(hwndDlg, IDC_PROGRESS), TRUE);
 
-                            SendDlgItemMessage(hwndDlg, IDC_PROGRESS, 
+                            SendDlgItemMessage(hwndDlg, IDC_PROGRESS,
                                 PBM_SETMARQUEE, TRUE, 0);
                         }
                     }
@@ -413,7 +414,7 @@ INT_PTR CALLBACK DialogProc(
                         /* Read values from input fields */
                         cnt = GetDlgItemText(hwndDlg, IDC_LOGIN, g_lpLogin, LOGIN_MAX_LENGTH);
                         cnt *= GetDlgItemText(hwndDlg, IDC_ID, g_lpId, LOGIN_MAX_LENGTH);
-                        cnt *= GetDlgItemText(hwndDlg, IDC_PASSWD, g_lpPassword, 
+                        cnt *= GetDlgItemText(hwndDlg, IDC_PASSWD, g_lpPassword,
                             PASSWORD_MAX_LENGTH);
 
                         /* If all fields were filled-in */
@@ -459,34 +460,6 @@ INT_PTR CALLBACK DialogProc(
                         }
                     }
                     return TRUE;
-                    
-                case IDC_SHOWP:
-                    {
-                        HWND hPassWnd;
-                        
-                        /* Get the Password window handle */
-                        hPassWnd = GetDlgItem(hwndDlg, IDC_PASSWD);                        
-                        
-                        if(BST_CHECKED == 
-                            IsDlgButtonChecked(hwndDlg, IDC_SHOWP))
-                        {
-                            SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 
-                                (WPARAM)DEFAULT_PASSWD_CHAR, 0);
-
-                            SendDlgItemMessage(hwndDlg, IDC_SHOWP, BM_SETCHECK,
-                                (WPARAM)BST_UNCHECKED, 0);                        
-                        }
-                        else
-                        {
-                            SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 0, 0);
-
-                            SendDlgItemMessage(hwndDlg, IDC_SHOWP, BM_SETCHECK,
-                                (WPARAM)BST_CHECKED, 0);
-                        }
-                        
-                        InvalidateRect(hPassWnd, NULL, TRUE);                        
-                        return TRUE;
-                    }
                 }
                 break;
 
@@ -500,13 +473,36 @@ INT_PTR CALLBACK DialogProc(
                     SetDlgItemText(hwndDlg, IDC_PASSWD, NULL);
 
                 case IDC_PASSWD:
-                    /* Uncheck 'Save Password' */
+                    /* Un-check 'Save Password' */
                     SendDlgItemMessage(hwndDlg, IDC_SAVE_PASS, BM_SETCHECK,
                         (WPARAM)BST_UNCHECKED, 0);
                     return TRUE;
                 }
-                return FALSE;            
-            }            
+                return FALSE;
+            }
+
+            if(LOWORD(wParam) == IDC_SHOWP)
+            {
+                HWND hPassWnd;
+
+                /* Get the Password window handle */
+                hPassWnd = GetDlgItem(hwndDlg, IDC_PASSWD);
+
+                switch(HIWORD(wParam))
+                {
+                case RB_REVEAL:
+                    SendMessage(hPassWnd, EM_SETPASSWORDCHAR,
+                        (WPARAM)0, 0);
+                    break;
+
+                case RB_HIDE:
+                    SendMessage(hPassWnd, EM_SETPASSWORDCHAR,
+                        (WPARAM)DEFAULT_PASSWD_CHAR, 0);
+                    break;
+                }
+                InvalidateRect(hPassWnd, NULL, TRUE);
+                return TRUE;
+            }
         }
         else if(0 == HIWORD(wParam))
         {
@@ -519,7 +515,7 @@ INT_PTR CALLBACK DialogProc(
                         TEXT("stored in Registry database.\r\n")\
                         TEXT("\r\nDo you wish to continue?"),
                         g_lpCaption, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
-                    {					
+                    {
                         DeleteMyRegKey();
                     }
 
@@ -560,11 +556,11 @@ INT_PTR CALLBACK DialogProc(
                         DoWindows10Integration();
                     }
                     return TRUE;
-                
+
                 case ID_MENU_ABOUT:
                     ShowAboutDialog(hwndDlg);
                     return TRUE;
-                    
+
                 case ID_EXIT:
                     PostMessage(hwndDlg, WM_CLOSE, 0, 0);
                     return TRUE;
@@ -621,12 +617,12 @@ INT_PTR CALLBACK DialogProc(
 	{
 		MONITORINFO mi;
                 INITCOMMONCONTROLSEX icex;
-        
-                /* Initialize common controls */        
+
+                /* Initialize common controls */
                 icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
                 icex.dwICC = ICC_STANDARD_CLASSES;
                 InitCommonControlsEx(&icex);
-		
+
 		/* Move windows to the center of monitor */
 		mi.cbSize = sizeof(MONITORINFO);
 		if (FALSE != GetMonitorInfo(MonitorFromCursor(), &mi))
@@ -651,7 +647,7 @@ INT_PTR CALLBACK DialogProc(
 		{
 			SendDlgItemMessage(hwndDlg, IDC_WARNS, STM_SETICON,
 				(WPARAM)g_hSmallWarnIcon, 0);
-		}		
+		}
 
 		/* Set Edit Controls Limits */
 		SendDlgItemMessage(hwndDlg, IDC_LOGIN, EM_SETLIMITTEXT,
@@ -666,23 +662,23 @@ INT_PTR CALLBACK DialogProc(
 
 		/* If already registered to run at startup, check the menu */
 		CheckMenuItem(g_hMainMenu, ID_RUNATSTARTUP,
-			MF_BYCOMMAND | (MF_CHECKED * IsRegisteredToRunAtStartup()));		
+			MF_BYCOMMAND | (MF_CHECKED * IsRegisteredToRunAtStartup()));
 
 		/* Read registry data */
         ReadRegistry(hwndDlg);
-		
+
 	}
 
 		return TRUE;
 	default:
-		return FALSE;		
-	}    
+		return FALSE;
+	}
 	return FALSE;
 }
 
 /******************************************************************************/
 HWND CreateToolTip(int toolID, HWND hDlg, PTSTR pszText, INT iMaxWidth)
-{	
+{
 	// Get the window of the tool.
 	HWND hwndTool = GetDlgItem(hDlg, toolID);
 
@@ -701,7 +697,7 @@ HWND CreateToolTip(int toolID, HWND hDlg, PTSTR pszText, INT iMaxWidth)
 
 	// Associate the tooltip with the tool.
 	TOOLINFO toolInfo = { 0 };
-	toolInfo.cbSize = sizeof(toolInfo);	
+	toolInfo.cbSize = sizeof(toolInfo);
 	toolInfo.hwnd = hDlg;
 	toolInfo.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
 	toolInfo.uId = (UINT_PTR)hwndTool;
@@ -722,19 +718,32 @@ INT WINAPI wWinMain(
 	int nCmdShow
 	)
 {
-	MSG msg;
-	HICON hIcon;
-	HWND hwndPassTooltip, hwndShowPTooltip;      
-        
-        
-	g_hMyInstance = hInstance;
-    
-    
-	/* Get Process heap */
-	g_hHeap = GetProcessHeap();
-    
+    MSG msg;
+    HICON hIcon;
+    HWND hwndPassTooltip, hwndShowPTooltip;
+    ATOM aRevButtonClass;
+
+
+    /* Store handle to the current instance */
+    g_hMyInstance = hInstance;
+
+
+    /* Get Process heap */
+    g_hHeap = GetProcessHeap();
+
     /* Open Registry Key */
 	OpenMyRegKey();
+
+    /* Register reveal button class */
+    aRevButtonClass = RevButtonRegisterClass();
+
+    if(0 == aRevButtonClass)
+    {
+        DWORD dwErr = GetLastError();
+		MessageBox(NULL, TEXT("Could not register window class."),
+			TEXT("Error"), MB_OK | MB_ICONHAND);
+		return dwErr;
+    }
 
 	g_hSmallWarnIcon = LoadImage(g_hMyInstance, MAKEINTRESOURCE(IDI_WARN),
 		IMAGE_ICON, 24, 24, LR_DEFAULTCOLOR);
@@ -747,21 +756,21 @@ INT WINAPI wWinMain(
 		DialogProc,
 		(LPARAM)NULL
 	);
-        
+
 
 	if (NULL == g_hwndMain)
 	{
         DWORD dwErr = GetLastError();
-		MessageBox(NULL, TEXT("Application Initialization Failed!"),
-			TEXT("Error!"), MB_OK | MB_ICONHAND);
+		MessageBox(NULL, TEXT("Application Initialization Failed."),
+			TEXT("Error"), MB_OK | MB_ICONHAND);
 		return dwErr;
-	}	
+	}
 
 	/* Create Tooltips */
     hwndShowPTooltip = CreateToolTip(IDC_SHOWP, g_hwndMain,
             TEXT("Show password"), 400);
-    
-	hwndPassTooltip = CreateToolTip(IDC_SAVE_PASS, g_hwndMain, 
+
+	hwndPassTooltip = CreateToolTip(IDC_SAVE_PASS, g_hwndMain,
 		TEXT("Password will be stored in encrypted form inside\r\n")\
 		TEXT("Windows Registry database. Encryption will be\r\n")\
 		TEXT("performed using WIN32 Crypto API.\r\n\r\n")\
@@ -776,8 +785,8 @@ INT WINAPI wWinMain(
 		{
 			hIcon = LoadIcon(NULL, IDI_INFORMATION);
 		}
-		SendMessage(hwndPassTooltip, TTM_SETTITLE, (WPARAM)hIcon, (LPARAM)TEXT("Security Considerations"));		
-		
+		SendMessage(hwndPassTooltip, TTM_SETTITLE, (WPARAM)hIcon, (LPARAM)TEXT("Security Considerations"));
+
 		DestroyIcon(hIcon);
 		SendMessage(hwndPassTooltip, TTM_SETDELAYTIME, (WPARAM)TTDT_AUTOPOP, 25000);
 	}
@@ -794,17 +803,17 @@ INT WINAPI wWinMain(
 
 		DestroyIcon(hIcon);
 	}
-	
+
 	/* Load Logo image */
 	g_hLogoImage = LoadImage(hInstance, MAKEINTRESOURCE(IDB_LOGO), IMAGE_BITMAP, 0, 0, LR_SHARED);
-        
+
         /* Invalidate Whole Window */
         InvalidateRect(g_hwndMain, NULL, FALSE);
-	    
+
 	/* Draw Window */
 	ShowWindow(g_hwndMain, nCmdShow);
-    
-    
+
+
 	/* Enter the message loop */
 	while (GetMessage(&msg, NULL, 0, 0) > 0)
 	{
@@ -832,7 +841,7 @@ INT WINAPI wWinMain(
 	{
 		DestroyWindow(hwndPassTooltip);
 	}
-    
+
     if (NULL != hwndShowPTooltip)
     {
         DestroyWindow(hwndShowPTooltip);
@@ -847,7 +856,7 @@ INT WINAPI wWinMain(
 		DestroyIcon(g_hSmallWarnIcon);
 	}
 
-	
+
 	ExitProcess((UINT)(msg.wParam));
 
    return (INT)(msg.wParam);

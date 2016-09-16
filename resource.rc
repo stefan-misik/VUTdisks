@@ -1,5 +1,6 @@
 #include "resource.h"
 #include "defs.h"
+#include "reveal_button.h"
 
 /******************************************************************************/
 1 RT_MANIFEST "res\\VUTdisks.manifest"
@@ -63,7 +64,7 @@ BEGIN
     CONTROL         "Save this password",IDC_SAVE_PASS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,76,146,74,10
     DEFPUSHBUTTON   "Map",IDOK,132,210,50,14, WS_TABSTOP
     PUSHBUTTON      "Close",IDCANCEL,191,210,50,14, WS_TABSTOP
-    CONTROL         "",IDC_SHOWP,"Button",BS_CHECKBOX,210,127,14,14
+    CONTROL         "",IDC_SHOWP,"REVEAL_BUTTON_CLASS",0,210,127,14,14
     GROUPBOX        "Login",IDC_STATIC,24,78,210,87
     LTEXT           "Login",IDC_STATIC,35,98,18,14
     LTEXT           "ID",IDC_STATIC,35,114,8,14

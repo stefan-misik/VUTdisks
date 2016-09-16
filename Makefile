@@ -1,7 +1,7 @@
 #! /bin/make -f
 # Makefile to build VUTdisks application using cygwin with mingw compiler
 # or mingw itself
-# 
+#
 # Author: Stefan Misik (mail@stefanmisik.eu)
 
 # Set commands names
@@ -12,11 +12,11 @@ else
 	CC	= gcc
 	WINDRES = windres
 endif
-    
-# Project settings    
+
+# Project settings
 PROJ	= VUTdisks
 SRC	= vut_disks.c registry.c disk_mapper.c win_tile_manifest_gen.c  \
-          defs.c about_dialog.c
+          defs.c about_dialog.c reveal_button.c
 RES	= resource.rc
 
 # Compile flags
@@ -24,7 +24,7 @@ CFLAGS	    = -c -municode
 LDFLAGS	    = -static  -mwindows -municode
 LDLIBS	    = -lcomctl32 -lmpr -lcrypt32 -ladvapi32 -luser32 -lkernel32 \
               -lshlwapi
-# Number to subtract from the last git commits count 
+# Number to subtract from the last git commits count
 LAST_COMMIT = 32
 
 ################################################################################
@@ -62,13 +62,13 @@ all: $(EXECUTABLE)
 $(EXECUTABLE): $(OBJ)
 	$(CC) $(LDFLAGS) $(DLDFLAGS) $(OBJ)  -o $@ $(LDLIBS)
 
-%.o: %.c	
+%.o: %.c
 	$(CC) $(CFLAGS) $(DCFLAGS) $< -o $@
 
 defs.o: defs.c
 	$(CC) $(CFLAGS) $(DCFLAGS) $(PROJ_DEFINES) $< -o $@
-	
-%.o: %.rc	
+
+%.o: %.rc
 	$(WINDRES) $(CFLAGS) $(subst \",\\\",$(PROJ_DEFINES)) -i $< -o $@
 
 clean:
