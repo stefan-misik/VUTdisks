@@ -1,7 +1,12 @@
 #include "reveal_button.h"
+#include "resource.h"
+
+#define REVB_EXTRA_STATE 0
+#define REVB_EXTRA_ICON REVB_EXTRA_STATE + sizeof(LONG)
+
+#define REVB_EXTRA_TOTAL REVB_EXTRA_ICON + sizeof(HICON)
 
 
-#define REVB_STATE 0
 
 /******************************************************************************/
 static VOID RevButtonNotifyParent(
@@ -25,6 +30,68 @@ static VOID RevButtonNotifyParent(
 }
 
 /******************************************************************************/
+static VOID RevButtonLoadIcon(
+    HWND hWnd,
+    INT iCx, 
+    INT iCy
+)
+{
+    HICON hIcon;
+    INT iDim;
+    UINT uIconID;
+    static const UINT arruIconSizes[] = {16, 24, 32, 48, 64, 72};
+    
+    /* Destroy icon, if there is one already */
+    hIcon = (HICON)GetWindowLongPtr(hWnd, REVB_EXTRA_ICON);
+    if(NULL != hIcon)
+    {
+        DestroyIcon(hIcon);
+    }
+    
+    hIcon = NULL;
+    
+    /* Chose icon of appropriate size */
+    iDim = iCx < iCy ? iCx : iCy;
+    
+    for(uIconID = 0; uIconID < (sizeof(arruIconSizes) / sizeof(UINT)); 
+            uIconID++)
+    {
+        if(iDim <= arruIconSizes[uIconID])
+        {
+            if(iDim == arruIconSizes[uIconID])
+            {
+                uIconID ++;
+            }
+            break;
+        }
+    } 
+    
+    /* Load that icon */
+    if(uIconID != 0)
+    {
+        iDim = arruIconSizes[uIconID - 1];
+        
+        hIcon = (HICON)LoadImage(g_hMyInstance, MAKEINTRESOURCE(IDI_REVEAL), 
+                IMAGE_ICON, iDim, iDim, LR_DEFAULTCOLOR);
+    }
+    
+    SetWindowLongPtr(hWnd, REVB_EXTRA_ICON, (LONG_PTR)hIcon);
+}
+
+/******************************************************************************/
+static LRESULT RevButtonCreate(
+    HWND hWnd,
+    LPCREATESTRUCT lpCs
+)
+{  
+    /* Init extra fields */
+    SetWindowLong(hWnd, REVB_EXTRA_STATE, (LONG)0);    
+    SetWindowLongPtr(hWnd, REVB_EXTRA_ICON, (LONG_PTR)NULL);
+    
+    return 0;
+}
+
+/******************************************************************************/
 static LRESULT CALLBACK RevButtonWindowProc(
     HWND   hWnd,
     UINT   uMsg,
@@ -36,10 +103,30 @@ static LRESULT CALLBACK RevButtonWindowProc(
     {
     
     /* Create window */
-    case WM_CREATE:
-        /* Init state variable */
-        SetWindowLong(hWnd, REVB_STATE, 0);
-        break; 
+    case WM_CREATE:        
+        return RevButtonCreate(hWnd, (LPCREATESTRUCT)lParam);
+    
+    /* Destroy */
+    case WM_DESTROY:
+        {
+            HICON hIcon;
+            
+            /* Destroy icon, if there is one */
+            hIcon = (HICON)GetWindowLongPtr(hWnd, REVB_EXTRA_ICON);
+            if(NULL != hIcon)
+            {
+                DestroyIcon(hIcon);
+            }
+            
+            break;
+        }
+            
+        
+    /* Size Window */
+    case WM_SIZE:
+        /* Load Icon of appropriate size */
+        RevButtonLoadIcon(hWnd, (INT)LOWORD(lParam), (INT)LOWORD(lParam));
+        break;
         
     /* Mouse button down */
     case WM_LBUTTONDOWN:
@@ -84,9 +171,9 @@ ATOM RevButtonRegisterClass(
     wce.style = 0;
     wce.lpfnWndProc = RevButtonWindowProc;
     wce.cbClsExtra = 0;
-    wce.cbWndExtra = sizeof(LONG);
+    wce.cbWndExtra = REVB_EXTRA_TOTAL;
     wce.hInstance = g_hMyInstance;
-    wce.hIcon = 0;
+    wce.hIcon = NULL;
     wce.hCursor = LoadCursor(NULL, IDC_ARROW);
     wce.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
     wce.lpszMenuName = NULL;
