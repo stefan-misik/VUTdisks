@@ -629,7 +629,7 @@ INT WINAPI wWinMain(
 {
     MSG msg;
     HICON hIcon;
-    HWND hwndPassTooltip, hwndShowPTooltip;    
+    HWND hwndPassTooltip, hwndShowPTooltip, hwndTest;    
     ATOM aRevButtonClass;
 
 
@@ -643,8 +643,8 @@ INT WINAPI wWinMain(
     /* Open Registry Key */
 	OpenMyRegKey();
     
-    /* Register reveal button class */
-    aRevButtonClass = RevButtonRegisterClass();
+    /* Register reveal button class and initialize */
+    aRevButtonClass = RevButtonInit();
     
     if(0 == aRevButtonClass)
     {
@@ -653,6 +653,11 @@ INT WINAPI wWinMain(
 			TEXT("Error"), MB_OK | MB_ICONHAND);
 		return dwErr;
     }
+    
+    hwndTest = CreateWindow((LPTSTR)(INT_PTR)aRevButtonClass, TEXT("Test"), WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, 200, 200, NULL, NULL, g_hMyInstance,
+        NULL);
+    ShowWindow(hwndTest, nCmdShow);
 
 	g_hSmallWarnIcon = LoadImage(g_hMyInstance, MAKEINTRESOURCE(IDI_WARN),
 		IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
@@ -755,6 +760,9 @@ INT WINAPI wWinMain(
     {
         DestroyWindow(hwndShowPTooltip);
     }
+    
+    /* De-init Reveal button */
+    RevButtonDeinit();
 
 	/* Close My Reg Key */
 	CloseMyRegKey();

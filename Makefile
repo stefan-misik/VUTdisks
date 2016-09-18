@@ -7,23 +7,25 @@
 # Set commands names
 ifeq ($(shell uname -o),Cygwin)
 	CC	= i686-w64-mingw32-gcc
+	CXX     = i686-w64-mingw32-g++
 	WINDRES = i686-w64-mingw32-windres
 else
 	CC	= gcc
+	CXX     = g++
 	WINDRES = windres
 endif
     
 # Project settings    
 PROJ	= VUTdisks
 SRC	= vut_disks.c registry.c disk_mapper.c win_tile_manifest_gen.c  \
-          reveal_button.c
+          reveal_button.cpp
 RES	= resource.rc
 
 # Compile flags
 CFLAGS	    = -c -municode
 LDFLAGS	    = -static  -mwindows -municode
 LDLIBS	    = -lcomctl32 -lmpr -lcrypt32 -ladvapi32 -luser32 -lkernel32 \
-              -lshlwapi
+              -lshlwapi -lgdiplus
 
 ################################################################################
 # Git versions
@@ -37,7 +39,7 @@ PROJ_DEFINES := -DPROJECT_NAME=\"$(PROJ)\"       \
 		-DPROJECT_VER=\"$(GIT_TAG)\"
 
 # Objects and outputs
-OBJ = $(RES:.rc=.o) $(SRC:.c=.o)
+OBJ = $(RES:.rc=.o) $(addsuffix .o,$(basename $(SRC)))
 EXECUTABLE = $(addsuffix .exe,$(PROJ)) 
 
 # Debug flags
@@ -56,10 +58,13 @@ endif
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJ)
-	$(CC) $(LDFLAGS) $(DLDFLAGS) $(OBJ)  -o $@ $(LDLIBS)
+	$(CXX) $(LDFLAGS) $(DLDFLAGS) $(OBJ)  -o $@ $(LDLIBS)
 
 %.o: %.c	
 	$(CC) $(CFLAGS) $(DCFLAGS) $< -o $@
+	
+%.o: %.cpp	
+	$(CXX) $(CFLAGS) $(DCFLAGS) $< -o $@
 
 defs.o: defs.c
 	$(CC) $(CFLAGS) $(DCFLAGS) $(PROJ_DEFINES) $< -o $@
@@ -68,5 +73,5 @@ defs.o: defs.c
 	$(WINDRES) $(CFLAGS) $(subst \",\\\",$(PROJ_DEFINES)) -i $< -o $@
 
 clean:
-	$(RM) $(EXECUTABLE) $(SRC:.c=.o) $(RES:.rc=.o)
+	$(RM) $(EXECUTABLE) $(OBJ)
 
