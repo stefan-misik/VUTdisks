@@ -7,25 +7,11 @@
 
 #define REVB_EXTRA_TOTAL REVB_EXTRA_ICON_SIZE + sizeof(LONG)
 
-typedef enum tagREVBUTSTATE
-{
-    RBS_DEFAULT = 0,
-    RBS_ACTIVE
-} REVBUTSTATE, *LPREVBUTSTATE;
+/* Reveal button state flags */
+#define RBS_DEFAULT 0
+#define RBS_ACTIVE 1
+#define RBS_MOUSE_OVER 2
 
-
-/******************************************************************************/
-static VOID RevButtonSetState(
-    HWND hWnd,
-    LONG lState
-)
-{
-    /* Change state variable */
-    SetWindowLong(hWnd, REVB_EXTRA_STATE, lState);
-    
-    /* Invalidate the window to be redrawn */
-    InvalidateRect(hWnd, NULL, TRUE);
-}
 
 /******************************************************************************/
 static VOID RevButtonNotifyParent(
@@ -139,7 +125,7 @@ static LRESULT RevButtonPaint(
             /* Get Icon size */
             iDim = (int)GetWindowLong(hWnd, REVB_EXTRA_ICON_SIZE);  
             
-            iOffset = RBS_ACTIVE == lState ? 1 : 0;
+            iOffset = RBS_MOUSE_OVER & lState ? -1 : 0;
             
             /* Draw Icon */
             DrawIconEx(ps.hdc, 
@@ -149,6 +135,85 @@ static LRESULT RevButtonPaint(
         }        
         EndPaint(hWnd, &ps);
     }
+    return 0;
+}
+
+/******************************************************************************/
+static LRESULT RevButtonMouseMove(
+    HWND hWnd,
+    WPARAM wParam,
+    WORD wX,
+    WORD wY
+)
+{
+    LONG lState;
+    RECT rc;
+    POINT p;
+
+    p.x = wX;
+    p.y = wY;
+    GetClientRect(hWnd, &rc);
+            
+    /* Get current state */
+    lState = GetWindowLong(hWnd, REVB_EXTRA_STATE);
+
+    if(!(lState & RBS_MOUSE_OVER))
+    {
+        if(PtInRect(&rc, p))
+        {
+            TRACKMOUSEEVENT tme;
+
+            tme.cbSize = sizeof(TRACKMOUSEEVENT);
+            tme.dwFlags = TME_LEAVE;
+            tme.hwndTrack = hWnd;
+            tme.dwHoverTime = 0;
+
+            if(FALSE != TrackMouseEvent(&tme))
+            {
+                /* Change State */
+                SetWindowLong(hWnd, REVB_EXTRA_STATE, lState | RBS_MOUSE_OVER);
+
+                /* Redraw window */
+                InvalidateRect(hWnd, NULL, TRUE);
+            }
+        }
+    }
+    else
+    {       
+        if(!PtInRect(&rc, p))
+        {
+            /* Change State */
+            SetWindowLong(hWnd, REVB_EXTRA_STATE, lState & (~RBS_MOUSE_OVER));
+
+            /* Redraw window */
+            InvalidateRect(hWnd, NULL, TRUE);
+        }
+        
+    }
+
+    
+    return 0;
+}
+
+static LRESULT RevButtonMouseLeave(
+    HWND hWnd
+)
+{
+    LONG lState;
+
+    /* Get current state */
+    lState = GetWindowLong(hWnd, REVB_EXTRA_STATE);
+
+    if(lState & RBS_MOUSE_OVER)
+    {
+        /* Change State */
+        SetWindowLong(hWnd, REVB_EXTRA_STATE, 
+                lState & (~RBS_MOUSE_OVER));
+
+        /* Redraw window */
+        InvalidateRect(hWnd, NULL, TRUE);
+    }
+         
     return 0;
 }
 
@@ -194,28 +259,41 @@ static LRESULT CALLBACK RevButtonWindowProc(
         
     /* Mouse button down */
     case WM_LBUTTONDOWN:
-        /* Notify Parent */
-        RevButtonNotifyParent(hWnd, RB_REVEAL);
-        
-        /* Change State */
-        RevButtonSetState(hWnd, RBS_ACTIVE);
-        
-        /* Capture the mouse */
-        SetCapture(hWnd);         
-        return 0;
+        {
+            LONG lState;
+            
+            /* Get current state */
+            lState = GetWindowLong(hWnd, REVB_EXTRA_STATE);
+            
+            /* Notify Parent */
+            RevButtonNotifyParent(hWnd, RB_REVEAL);
+
+            /* Change State */
+            SetWindowLong(hWnd, REVB_EXTRA_STATE, lState | RBS_ACTIVE);
+
+            /* Redraw window */
+            InvalidateRect(hWnd, NULL, TRUE);
+
+            /* Capture the mouse */
+            SetCapture(hWnd);         
+            return 0;
+        }
     
     /* Mouse button up */    
     case WM_LBUTTONUP:
         {
             LONG lState = GetWindowLong(hWnd, REVB_EXTRA_STATE);
             /* If mouse is captured by this window, release it */
-            if(RBS_ACTIVE == lState)
+            if(RBS_ACTIVE & lState)
             {
                 /* Notify Parent */
                 RevButtonNotifyParent(hWnd, RB_HIDE);
                 
                 /* Change State */
-                RevButtonSetState(hWnd, RBS_DEFAULT);
+                SetWindowLong(hWnd, REVB_EXTRA_STATE, lState & (~RBS_ACTIVE));
+                
+                /* Redraw window */
+                InvalidateRect(hWnd, NULL, TRUE);
             } 
             
             if(hWnd == GetCapture())
@@ -224,6 +302,13 @@ static LRESULT CALLBACK RevButtonWindowProc(
             }
             return 0;
         }
+    /* Mouse move over window */
+    case WM_MOUSEMOVE:
+        return RevButtonMouseMove(hWnd, wParam, LOWORD(lParam), HIWORD(lParam));
+
+    /* Mouse leave form window */
+    case WM_MOUSELEAVE:
+        return RevButtonMouseLeave(hWnd);
     
     default:
         break;          
