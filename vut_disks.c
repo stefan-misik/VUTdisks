@@ -46,7 +46,7 @@ BOOL ProgressBarMarquee(HWND hWnd, BOOL bState)
 
 	dwStyle = GetWindowLong(hWnd, GWL_STYLE);
 
-	bOld = ((dwStyle | PBS_MARQUEE) != 0);
+	bOld = ((dwStyle & PBS_MARQUEE) != 0);
 
 	if (TRUE == bState)
 	{
