@@ -69,7 +69,7 @@ BEGIN
     LTEXT           "Password",IDC_STATIC,35,131,32,14
     CONTROL         PROJECT_AUTHOR "\n<A>stefan.misik@phd.feec.vutbr.cz</A>",IDC_MAILTO,
                     "SysLink",0x0,16,206,99,18
-    ICON            "",IDC_WARNS,28,190,21,20,NOT WS_VISIBLE
+    ICON            "",IDC_WARNS,25,187,30,30,NOT WS_VISIBLE
     CONTROL         "There were some errors. <a>Show details</a>",IDC_ERR_LIST,
                     "SysLink",NOT WS_VISIBLE | WS_TABSTOP,42,190,146,11
 END

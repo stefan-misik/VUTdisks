@@ -32,3 +32,7 @@
 nbproject/
 
 *.VisualElementsManifest.xml
+
+# Icon source files
+src/*.png
+src/*.ico

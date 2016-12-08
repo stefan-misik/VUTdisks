@@ -75,35 +75,44 @@ VOID ShowWarningMessage(BOOL bVisible)
 /******************************************************************************/
 VOID DisplayErrMessage(HWND hwndParent)
 {
-	static TCHAR lpErrMessage[ERROR_MESSAGE_MAX_LENGTH];
+	TCHAR * lpErrMessage;
 	UINT_PTR uPos = 0;
 	UINT uDisk;
-	static LPTSTR lpDisks[] = {
+	static const LPTSTR lpDisks[] = {
 	TEXT("P: "),
 	TEXT("Q: "), 
 	TEXT("R: "), 
 	TEXT("S: "), 
 	TEXT("T: ") };
+    
+    /* Allocate memory */
+    lpErrMessage = (TCHAR *)HeapAlloc(g_hHeap, 0, sizeof(TCHAR) *
+            ERROR_MESSAGE_BUFFER_LENGTH);
+    if(NULL == lpErrMessage)
+        return;
 
 	uPos += FormatMessage(FORMAT_MESSAGE_FROM_STRING,
 		TEXT("Disk mapping finished with following results:\r\n\r\n"),
 		0, 0, (LPTSTR)(((UINT_PTR)lpErrMessage) + (uPos * sizeof(TCHAR))), 
-		(ERROR_MESSAGE_MAX_LENGTH - uPos), NULL);
+		(ERROR_MESSAGE_BUFFER_LENGTH - uPos), NULL);
 
 	for (uDisk = 0; uDisk < g_uErrorsCnt; uDisk++)
 	{
 		uPos += FormatMessage(FORMAT_MESSAGE_FROM_STRING,
 			lpDisks[uDisk],
 			0, 0, (LPTSTR)(((UINT_PTR)lpErrMessage) + (uPos * sizeof(TCHAR))),
-			(ERROR_MESSAGE_MAX_LENGTH - uPos), NULL);
+			(ERROR_MESSAGE_BUFFER_LENGTH - uPos), NULL);
 
 		uPos += FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL,
 			g_lpdwErrors[uDisk], 0, 
 			(LPTSTR)(((UINT_PTR)lpErrMessage) + (uPos * sizeof(TCHAR))),
-			(ERROR_MESSAGE_MAX_LENGTH - uPos), NULL);
+			(ERROR_MESSAGE_BUFFER_LENGTH - uPos), NULL);
 	}
 
 	MessageBox(hwndParent, lpErrMessage, g_lpCaption, MB_OK);
+    
+    /* Free memory */
+    HeapFree(g_hHeap, 0, lpErrMessage);
 }
 
 /******************************************************************************/
@@ -447,9 +456,9 @@ INT_PTR CALLBACK DialogProc(
                                         win_tile_manifest_t tile;
                                         char * file_name;
 
-                                        tile.tile_color.red = 0xc2;
-                                        tile.tile_color.green = 0x0e;
-                                        tile.tile_color.blue = 0x1a;
+                                        tile.tile_color.red = 0xdc;
+                                        tile.tile_color.green = 0x00;
+                                        tile.tile_color.blue = 0x21;
                                         tile.flags = WIN_TILE_FLAGS_SHOW_NAME;
 
                                         file_name = (char *)HeapAlloc(g_hHeap, 
@@ -646,7 +655,7 @@ INT WINAPI wWinMain(
 	OpenMyRegKey();
 
 	g_hSmallWarnIcon = LoadImage(g_hMyInstance, MAKEINTRESOURCE(IDI_WARN),
-		IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
+		IMAGE_ICON, 24, 24, LR_DEFAULTCOLOR);
 
 	/* Create main Window */
 	g_hwndMain = CreateDialogParam(
