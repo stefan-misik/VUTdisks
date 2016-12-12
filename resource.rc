@@ -6,7 +6,11 @@
 
 
 /******************************************************************************/
+IDI_MAIN                ICON                    "res\\icon.ico"
 IDI_WARN                ICON                    "res\\warning.ico"
+
+/******************************************************************************/
+IDI_LOGO_IMAGE          RCDATA                  "res\\logo.png"
 
 /******************************************************************************/
 VS_VERSION_INFO VERSIONINFO
@@ -27,7 +31,7 @@ BEGIN
         BLOCK "000904b0"
         BEGIN
             VALUE "CompanyName", "Stefan Misik"
-            VALUE "FileDescription", "VUTdisks"
+            VALUE "FileDescription", PROJECT_NAME
             VALUE "FileVersion", PROJECT_VER
             VALUE "InternalName", PROJECT_NAME
             VALUE "LegalCopyright", PROJECT_CPYR
@@ -42,8 +46,7 @@ BEGIN
     END
 END
 
-/******************************************************************************/
-IDI_MAIN                ICON                    "res\\icon.ico"
+
 
 /******************************************************************************/
 IDD_MAIN_WND DIALOGEX 0, 0, 255, 231
@@ -67,13 +70,42 @@ BEGIN
     CONTROL         "",IDC_LOGO,"Static",SS_OWNERDRAW,0,0,255,70
     CONTROL         "",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,24,176,210,8
     LTEXT           "Password",IDC_STATIC,35,131,32,14
-    CONTROL         PROJECT_AUTHOR "\n<A>stefan.misik@phd.feec.vutbr.cz</A>",IDC_MAILTO,
-                    "SysLink",0x0,16,206,99,18
     ICON            "",IDC_WARNS,25,187,30,30,NOT WS_VISIBLE
     CONTROL         "There were some errors. <a>Show details</a>",IDC_ERR_LIST,
                     "SysLink",NOT WS_VISIBLE | WS_TABSTOP,42,190,146,11
 END
 
+/******************************************************************************/
+IDD_ABOUT DIALOGEX 10, 10, 300, 200
+STYLE   DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "", IDC_APP_ICON, 7, 7, 32, 32, SS_ICON
+    LTEXT           "Name: ",IDC_STATIC, 60,7,50,8
+    LTEXT           "Version: ",IDC_STATIC, 60,19,50,8
+    LTEXT           "Git commit: ",IDC_STATIC, 60,31,50,8
+    LTEXT           "Author: ",IDC_STATIC, 60,43,50,8
+
+    CONTROL         "<a>Get the latest version</a>",IDC_GET_LATEST,
+                    "SysLink",WS_VISIBLE | WS_TABSTOP,170,19,80,8
+    CONTROL         "<a>" PROJECT_MAIL "</a>",IDC_MAILTO,
+                    "SysLink",WS_VISIBLE | WS_TABSTOP,170,43,99,8
+
+    EDITTEXT        IDC_APP_NAME, 110,7,60,8,
+                    NOT WS_BORDER | NOT WS_TABSTOP | ES_READONLY
+    EDITTEXT        IDC_APP_VER, 110,19,60,8,
+                    NOT WS_BORDER | NOT WS_TABSTOP | ES_READONLY
+    EDITTEXT        IDC_APP_GIT, 110,31,60,8,
+                    NOT WS_BORDER | NOT WS_TABSTOP | ES_READONLY
+    EDITTEXT        IDC_APP_AUTHOR, 110,43,60,8,
+                    NOT WS_BORDER | NOT WS_TABSTOP | ES_READONLY
+
+    EDITTEXT        IDC_LICTEXT, 7,60,286,115, 
+                    WS_VSCROLL | ES_MULTILINE | ES_READONLY | NOT WS_TABSTOP
+
+    DEFPUSHBUTTON   "Ok",IDOK,242,179,50,14    
+END
 
 /******************************************************************************/
 IDB_LOGO                BITMAP                  "res\\logo_vut.bmp"
@@ -87,11 +119,13 @@ BEGIN
         MENUITEM "&Remove Saved Login Data",    ID_REMOVEREGISTRYDATA
         MENUITEM "R&un at Startup",             ID_RUNATSTARTUP
         MENUITEM SEPARATOR
-        MENUITEM "Windows 8.1/10 Integration",  ID_VISUALMANIFEST
+        MENUITEM "Windows 8.1/10 &Integration", ID_VISUALMANIFEST
         MENUITEM SEPARATOR
+
         MENUITEM "E&xit",                       ID_EXIT
-    END
-    MENUITEM SEPARATOR
-    MENUITEM PROJECT_VER,                       ID_VERSIONMENU
-    
+    END    
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About",                      ID_MENU_ABOUT
+    END    
 END

@@ -14,7 +14,7 @@
    height="64px"
    id="svg3179"
    version="1.1"
-   inkscape:version="0.48.5 r10040"
+   inkscape:version="0.91 r13725"
    sodipodi:docname="icon.svg">
   <defs
      id="defs3181">
@@ -278,30 +278,30 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer">
     <g
-       id="vut_logo"
-       transform="matrix(0.51607181,0,0,0.51607181,21.115577,2.0678322)"
-       inkscape:label="vut_logo">
+       id="g3417"
+       inkscape:export-xdpi="22.5"
+       inkscape:export-ydpi="22.5">
       <path
          id="path2999"
          style="fill:#dc0021;fill-opacity:1;fill-rule:nonzero;stroke:none"
-         d="m -40.915966,120.00688 124.01375,0 0,-124.013755 -124.01375,0 0,124.013755 z"
+         d="M 3.6848154e-7,64 64.000001,64 l 0,-64.0000030336938 -64.00000063151846,0 L 3.6848154e-7,64 Z"
          inkscape:connector-curvature="0" />
       <g
-         transform="matrix(1.25,0,0,-1.25,17.351154,99.331245)"
+         transform="matrix(0.64508976,0,0,-0.64508976,30.070018,53.329888)"
          id="g3109">
         <path
            id="path3111"
            style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           d="m 0,0 11.533,0 0,38.925 c 0,3.957 3.434,7.163 7.664,7.163 l 17.199,0 0,10.228 L 0,56.315 0,0 z"
+           d="m 0,0 11.533,0 0,38.925 c 0,3.957 3.434,7.163 7.664,7.163 l 17.199,0 0,10.228 L 0,56.315 0,0 Z"
            inkscape:connector-curvature="0" />
       </g>
       <g
-         transform="matrix(1.25,0,0,-1.25,17.351154,14.961125)"
+         transform="matrix(0.64508976,0,0,-0.64508976,30.070018,9.7888471)"
          id="g3113">
         <path
            id="path3115"
            style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           d="m 0,0 -30.666,0 0,-11.181 30.666,0 0,10e-4 L 0,0 z"
+           d="m 0,0 -30.666,0 0,-11.181 30.666,0 0,10e-4 L 0,0 Z"
            inkscape:connector-curvature="0" />
       </g>
     </g>

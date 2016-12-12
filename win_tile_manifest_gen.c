@@ -1,11 +1,10 @@
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "win_tile_manifest_gen.h"
 
 /******************************************************************************/
-static const char manifest_head[] = 
+static const char * manifest_head = 
     "<Application xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
     "<VisualElements";
 
@@ -18,7 +17,12 @@ static const char * manifest_visual_elements[] =
 };
 
 /******************************************************************************/
-static const char manifest_foot[] =
+static const char * manifest_logos =
+    "\nSquare150x150Logo=\"%s\""
+    "\nSquare70x70Logo=\"%s\"";
+
+/******************************************************************************/
+static const char * manifest_foot =
     "/>\n"
     "</Application>";
 
@@ -58,7 +62,7 @@ void static get_maniest_file_name(char * file_name, int buffer_length)
 }
 
 /******************************************************************************/
-void generate_win_tile_manifest(
+int generate_win_tile_manifest(
     const char * executable_file_name,
     win_tile_manifest_t * manifest
 )
@@ -86,36 +90,79 @@ void generate_win_tile_manifest(
         
         /* Free buffer containing the manifest file name */
         free(file_name);
-        file_name = (char *)0;
+        file_name = NULL;
         
         /* Check if manifest file was opened */
         if((FILE *)0 != manifest_file)
         {
             /* Write manifest header */
-            fputs(manifest_head, manifest_file);
+            if(EOF == fputs(manifest_head, manifest_file))
+            {
+                /* Close manifest file */
+                fclose(manifest_file);
+                return -1;
+            }
             
             /* Write configuration into manifest file */
-            fprintf(manifest_file, manifest_visual_elements[0], 
+            if(0 > fprintf(manifest_file, manifest_visual_elements[0], 
                     (unsigned short int)(manifest->tile_color.red), 
                     (unsigned short int)(manifest->tile_color.green), 
-                    (unsigned short int)(manifest->tile_color.blue));
+                    (unsigned short int)(manifest->tile_color.blue)))
+            {
+                /* Close manifest file */
+                fclose(manifest_file);
+                return -1;
+            }
             
-            fprintf(manifest_file, manifest_visual_elements[1],
+            if(0 > fprintf(manifest_file, manifest_visual_elements[1],
                     manifest_bool_values[
                         (manifest->flags & WIN_TILE_FLAGS_SHOW_NAME) ? 1 : 0
-                    ]);
+                    ]))
+            {
+                /* Close manifest file */
+                fclose(manifest_file);
+                return -1;
+            }
             
-            fprintf(manifest_file, manifest_visual_elements[2],
+            if(0 > fprintf(manifest_file, manifest_visual_elements[2],
                     manifest_themes[
                         (manifest->flags & WIN_TILE_FLAGS_FOREGROUND_DARK) ? 
                             1 : 0
-                    ]);
+                    ]))
+            {
+                /* Close manifest file */
+                fclose(manifest_file);
+                return -1;
+            }
+            
+            if(NULL != manifest->logo150)
+            {
+                if(0 > fprintf(manifest_file, manifest_logos,
+                        manifest->logo150, (NULL == manifest->logo70) ? 
+                            manifest->logo150 : manifest->logo70))
+                {
+                    /* Close manifest file */
+                    fclose(manifest_file);
+                    return -1;
+                }
+            }
             
             /* Write manifest footer */
-            fputs(manifest_foot, manifest_file);
+            if(EOF == fputs(manifest_foot, manifest_file))
+            {
+                /* Close manifest file */
+                fclose(manifest_file);
+                return -1;
+            }
             
             /* Close manifest file */
             fclose(manifest_file);
-        }      
+        }
+        else
+            return -1;
     }
+    else
+        return -1;
+    
+    return 0;
 }

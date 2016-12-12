@@ -15,8 +15,11 @@
 #include "disk_mapper.h"
 #include "registry.h"
 #include "win_tile_manifest_gen.h"
+#include "about_dialog.h"
 
 #define DEFAULT_PASSWD_CHAR 0x25CF
+
+#define LOGO_IMAGE_NAME PROJECT_NAME "_logo.png"
 
 HINSTANCE g_hMyInstance;
 HWND g_hwndMain;
@@ -36,7 +39,114 @@ LPMAPPARAM g_lpMapParam = NULL;
 BOOL g_bIsCancelling = FALSE;
 BOOL g_bCloseAfterCancel = FALSE;
 
+/******************************************************************************/
+static BOOL WriteResourceToFile(
+    HANDLE hFile,
+    HRSRC hRsrc
+)
+{
+    BOOL bRet = FALSE;    
+    
+    /* Check passed values */
+    if(INVALID_HANDLE_VALUE != hFile && NULL != hRsrc)
+    {
+        DWORD   dwSize;
+        LPVOID  lpData;
+        DWORD dwPos;
+        DWORD dwWritten;
+        HGLOBAL hgRsrc;
+        
+        /* Get Resource size */
+        dwSize = SizeofResource(g_hMyInstance, hRsrc);
+        /* Get Resource data */
+        hgRsrc = LoadResource(g_hMyInstance, hRsrc);
+        lpData = LockResource(hgRsrc);
+        
+        if(NULL != lpData && 0 != dwSize)
+        {
+            dwPos = 0;
+            while(dwPos < dwSize)
+            {
+                dwWritten = 0;
+                /* Write to file */
+                if(TRUE == WriteFile(
+                    hFile,
+                    (LPVOID)((UINT_PTR)lpData + dwPos),
+                    dwSize - dwPos,
+                    &dwWritten,
+                    NULL
+                ))
+                {
+                    dwPos += dwWritten;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            bRet = TRUE;
+        }        
+    }
+    
+    return bRet;
+}
 
+/******************************************************************************/
+static VOID DoWindows10Integration(VOID)
+{
+    win_tile_manifest_t tile;
+    char * file_name;
+    HANDLE hLogoImage;
+    
+    tile.tile_color.red = 0xdc;
+    tile.tile_color.green = 0x00;
+    tile.tile_color.blue = 0x21;
+    tile.flags = 0;
+    tile.logo150 = NULL;
+    tile.logo70 = NULL;
+    
+    /* Create DLL file */
+    hLogoImage = CreateFile(
+        TEXT(LOGO_IMAGE_NAME),
+        GENERIC_WRITE,
+        0, NULL,
+        CREATE_ALWAYS, 
+        FILE_ATTRIBUTE_NORMAL, 
+        NULL);
+
+    if(INVALID_HANDLE_VALUE != hLogoImage)
+    {
+        /* Write resource data */               
+        if(WriteResourceToFile(hLogoImage,
+            FindResource(
+                g_hMyInstance,
+                MAKEINTRESOURCE(IDI_LOGO_IMAGE),
+                RT_RCDATA
+            )))
+        {
+            tile.logo150 = LOGO_IMAGE_NAME;
+        }
+        
+        /* Close file */
+        CloseHandle(hLogoImage);
+    }
+    
+
+    file_name = (char *)HeapAlloc(g_hHeap, 
+            0, sizeof(char) * MAX_PATH);                                   
+
+    if(NULL != file_name)
+    {
+        GetModuleFileNameA(NULL, file_name, 
+            MAX_PATH);
+        /* Create Windows 8.1/10 Tile style Manifest if 
+         * there  is none */
+        generate_win_tile_manifest(file_name,
+                &tile);
+
+        HeapFree(g_hHeap, 0, file_name);
+    }
+}
 
 /******************************************************************************/
 BOOL ProgressBarMarquee(HWND hWnd, BOOL bState)
@@ -245,13 +355,7 @@ INT_PTR CALLBACK DialogProc(
 		case NM_CLICK:
 		case NM_RETURN:			
 			switch (((LPNMHDR)lParam)->idFrom)
-			{
-			case IDC_MAILTO:			
-				ShellExecute(NULL, TEXT("open"),
-					TEXT("mailto:stefan.misik@phd.feec.vutbr.cz"), NULL,
-					NULL, SW_SHOW);
-				return TRUE;
-			
+			{		
 			case IDC_ERR_LIST:
 				DisplayErrMessage(hwndDlg);
 				return TRUE;
@@ -453,38 +557,16 @@ INT_PTR CALLBACK DialogProc(
                         TEXT("\r\nDo you wish to continue?"),
                         g_lpCaption, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
                     {
-                                        win_tile_manifest_t tile;
-                                        char * file_name;
-
-                                        tile.tile_color.red = 0xdc;
-                                        tile.tile_color.green = 0x00;
-                                        tile.tile_color.blue = 0x21;
-                                        tile.flags = WIN_TILE_FLAGS_SHOW_NAME;
-
-                                        file_name = (char *)HeapAlloc(g_hHeap, 
-                                                0, sizeof(char) * MAX_PATH);                                   
-
-                                        if(NULL != file_name)
-                                        {
-                                            GetModuleFileNameA(NULL, file_name, 
-                                                MAX_PATH);
-                                            /* Create Windows 8.1/10 Tile style Manifest if 
-                                             * there  is none */
-                                            generate_win_tile_manifest(file_name,
-                                                    &tile);
-
-                                            HeapFree(g_hHeap, 0, file_name);
-                                        }
+                        DoWindows10Integration();
                     }
+                    return TRUE;
+                
+                case ID_MENU_ABOUT:
+                    ShowAboutDialog(hwndDlg);
                     return TRUE;
                     
                 case ID_EXIT:
                     PostMessage(hwndDlg, WM_CLOSE, 0, 0);
-                    return TRUE;
-                
-                case ID_VERSIONMENU:
-                    ShellExecute(NULL, TEXT("open"), TEXT(PROJECT_WEB), NULL,
-                        NULL, SW_SHOW);
                     return TRUE;
             }
         }

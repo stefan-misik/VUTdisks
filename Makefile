@@ -15,7 +15,8 @@ endif
     
 # Project settings    
 PROJ	= VUTdisks
-SRC	= vut_disks.c registry.c disk_mapper.c win_tile_manifest_gen.c
+SRC	= vut_disks.c registry.c disk_mapper.c win_tile_manifest_gen.c  \
+          defs.c about_dialog.c
 RES	= resource.rc
 
 # Compile flags
@@ -33,7 +34,8 @@ GIT_COMMITS = $(shell git rev-list --all --count)
 # Git defines
 PROJ_DEFINES := -DPROJECT_NAME=\"$(PROJ)\"       \
 		-DPROJECT_COMMITS=$(GIT_COMMITS) \
-		-DPROJECT_VER=\"$(GIT_TAG)\"
+		-DPROJECT_VER=\"$(GIT_TAG)\"     \
+	        -DPROJECT_GIT=\"$(GIT_VERSION)\"
 
 # Objects and outputs
 OBJ = $(RES:.rc=.o) $(SRC:.c=.o)
