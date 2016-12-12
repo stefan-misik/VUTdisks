@@ -27,6 +27,10 @@
     #define IDC_SAVE_PASS                   1009
     #define IDC_ERR_LIST                    1010
     #define IDC_WARNS                       1011
+    #define IDC_LOGIN_GRPBOX                1012
+    #define IDC_LABEL_LOGIN                 1013
+    #define IDC_LABEL_ID                    1014
+    #define IDC_LABEL_PASSWD                1015
 
 #define IDD_ABOUT       1030
     #define IDC_APP_ICON                    1031
@@ -37,4 +41,15 @@
     #define IDC_LICTEXT                     1036
     #define IDC_GET_LATEST                  1037
     #define IDC_MAILTO                      1038
+
+/* Strings */
+    #define IDS_BTN_MAP         10001
+    #define IDS_BTN_CLOSE       10002
+    #define IDS_BTN_OK          10003
+    #define IDS_SAVE_PASS       10004
+    #define IDS_LOGIN_GRPBOX    10005
+    #define IDS_LABEL_LOGIN     10006
+    #define IDS_LABEL_ID        10007
+    #define IDS_LABEL_PASSWD    10008
+
 

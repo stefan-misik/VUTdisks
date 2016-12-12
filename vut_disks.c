@@ -21,6 +21,8 @@
 
 #define LOGO_IMAGE_NAME PROJECT_NAME "_logo.png"
 
+#define MAX_STRING_LENGTH 4096
+
 HINSTANCE g_hMyInstance;
 HWND g_hwndMain;
 HANDLE g_hHeap;
@@ -38,6 +40,40 @@ HANDLE g_hLogoImage;
 LPMAPPARAM g_lpMapParam = NULL;
 BOOL g_bIsCancelling = FALSE;
 BOOL g_bCloseAfterCancel = FALSE;
+
+/******************************************************************************/
+static VOID LoadLocalization(HWND hwndDlg)
+{
+    LPTSTR lpString;
+    UINT uPos;
+    
+    static const UINT arrStrMap[] =
+    {
+        IDS_BTN_MAP, IDOK,
+        IDS_BTN_CLOSE, IDCANCEL,
+        IDS_SAVE_PASS, IDC_SAVE_PASS,
+        IDS_LOGIN_GRPBOX, IDC_LOGIN_GRPBOX,
+        IDS_LABEL_LOGIN, IDC_LABEL_LOGIN,
+        IDS_LABEL_ID, IDC_LABEL_ID,
+        IDS_LABEL_PASSWD, IDC_LABEL_PASSWD
+    };
+    
+    lpString = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) * MAX_STRING_LENGTH);    
+    if(NULL == lpString)
+        return;
+    
+    for(uPos = 0; uPos < (sizeof(arrStrMap)/sizeof(UINT)); uPos +=2)
+    {
+        /* Map button */
+        if(0 != LoadString(g_hMyInstance, arrStrMap[uPos], lpString, 
+                MAX_STRING_LENGTH))
+        {
+            SetDlgItemText(hwndDlg, arrStrMap[uPos + 1], lpString);
+        }
+    }    
+    
+    HeapFree(g_hHeap, 0, lpString);
+}
 
 /******************************************************************************/
 static BOOL WriteResourceToFile(
@@ -149,7 +185,7 @@ static VOID DoWindows10Integration(VOID)
 }
 
 /******************************************************************************/
-BOOL ProgressBarMarquee(HWND hWnd, BOOL bState)
+static BOOL ProgressBarMarquee(HWND hWnd, BOOL bState)
 {
 	DWORD dwStyle;
 	BOOL bOld;
@@ -174,7 +210,7 @@ BOOL ProgressBarMarquee(HWND hWnd, BOOL bState)
 
 
 /******************************************************************************/
-VOID ShowWarningMessage(BOOL bVisible)
+static VOID ShowWarningMessage(BOOL bVisible)
 {
 	int iCmd = (TRUE == bVisible) ? SW_SHOW : SW_HIDE;
 
@@ -183,7 +219,7 @@ VOID ShowWarningMessage(BOOL bVisible)
 }
 
 /******************************************************************************/
-VOID DisplayErrMessage(HWND hwndParent)
+static VOID DisplayErrMessage(HWND hwndParent)
 {
 	TCHAR * lpErrMessage;
 	UINT_PTR uPos = 0;
@@ -226,7 +262,7 @@ VOID DisplayErrMessage(HWND hwndParent)
 }
 
 /******************************************************************************/
-HMONITOR MonitorFromCursor(
+static HMONITOR MonitorFromCursor(
     VOID
 )
 {
@@ -241,7 +277,7 @@ HMONITOR MonitorFromCursor(
 }
 
 /******************************************************************************/
-INT_PTR CALLBACK DialogProc(
+static INT_PTR CALLBACK DialogProc(
     HWND hwndDlg,
     UINT uMsg,
     WPARAM wParam,
@@ -620,12 +656,15 @@ INT_PTR CALLBACK DialogProc(
 	case WM_INITDIALOG:
 	{
 		MONITORINFO mi;
-                INITCOMMONCONTROLSEX icex;
+        INITCOMMONCONTROLSEX icex;
+
+        /* Initialize common controls */        
+        icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+        icex.dwICC = ICC_STANDARD_CLASSES;
+        InitCommonControlsEx(&icex);
         
-                /* Initialize common controls */        
-                icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
-                icex.dwICC = ICC_STANDARD_CLASSES;
-                InitCommonControlsEx(&icex);
+        /* Load localized strings */
+        LoadLocalization(hwndDlg);
 		
 		/* Move windows to the center of monitor */
 		mi.cbSize = sizeof(MONITORINFO);
@@ -669,7 +708,7 @@ INT_PTR CALLBACK DialogProc(
 			MF_BYCOMMAND | (MF_CHECKED * IsRegisteredToRunAtStartup()));		
 
 		/* Read registry data */
-        ReadRegistry(hwndDlg);
+                ReadRegistry(hwndDlg);
 		
 	}
 
@@ -681,7 +720,7 @@ INT_PTR CALLBACK DialogProc(
 }
 
 /******************************************************************************/
-HWND CreateToolTip(int toolID, HWND hDlg, PTSTR pszText, INT iMaxWidth)
+static HWND CreateToolTip(int toolID, HWND hDlg, PTSTR pszText, INT iMaxWidth)
 {	
 	// Get the window of the tool.
 	HWND hwndTool = GetDlgItem(hDlg, toolID);

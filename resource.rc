@@ -60,16 +60,16 @@ BEGIN
     EDITTEXT        IDC_LOGIN,76,95,145,14,ES_LOWERCASE | ES_AUTOHSCROLL | WS_TABSTOP
     EDITTEXT        IDC_ID,76,111,145,14,ES_AUTOHSCROLL | ES_NUMBER | WS_TABSTOP
     EDITTEXT        IDC_PASSWD,76,127,130,14,ES_PASSWORD | ES_AUTOHSCROLL | WS_TABSTOP
-    CONTROL         "Save this password",IDC_SAVE_PASS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,76,146,74,10
+    CONTROL         "Save this password",IDC_SAVE_PASS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,76,146,80,10
     DEFPUSHBUTTON   "Map",IDOK,132,210,50,14, WS_TABSTOP
     PUSHBUTTON      "Close",IDCANCEL,191,210,50,14, WS_TABSTOP
     CONTROL         "",IDC_SHOWP,"Button",BS_CHECKBOX,210,127,14,14
-    GROUPBOX        "Login",IDC_STATIC,24,78,210,87
-    LTEXT           "Login",IDC_STATIC,35,98,18,14
-    LTEXT           "ID",IDC_STATIC,35,114,8,14
+    GROUPBOX        "Login",IDC_LOGIN_GRPBOX,24,78,210,87
+    LTEXT           "Login",IDC_LABEL_LOGIN,35,98,35,14
+    LTEXT           "ID",IDC_LABEL_ID,36,114,35,14
     CONTROL         "",IDC_LOGO,"Static",SS_OWNERDRAW,0,0,255,70
     CONTROL         "",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,24,176,210,8
-    LTEXT           "Password",IDC_STATIC,35,130,32,14
+    LTEXT           "Password",IDC_LABEL_PASSWD,35,130,35,14
     ICON            "",IDC_WARNS,25,187,30,30,NOT WS_VISIBLE
     CONTROL         "There were some errors. <a>Show details</a>",IDC_ERR_LIST,
                     "SysLink",NOT WS_VISIBLE | WS_TABSTOP,42,190,146,11
@@ -129,4 +129,18 @@ BEGIN
     BEGIN
         MENUITEM "&About",                      ID_MENU_ABOUT
     END    
+END
+
+
+/******************************************************************************/
+STRINGTABLE
+BEGIN
+    IDS_BTN_MAP         "Map"
+    IDS_BTN_CLOSE       "Close"
+    IDS_BTN_OK          "OK"
+    IDS_SAVE_PASS       "Save this password"
+    IDS_LOGIN_GRPBOX    "Login"
+    IDS_LABEL_LOGIN     "Login"
+    IDS_LABEL_ID        "ID"
+    IDS_LABEL_PASSWD    "Password"
 END
