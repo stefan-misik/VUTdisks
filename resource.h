@@ -46,10 +46,11 @@
     #define IDS_BTN_MAP         10001
     #define IDS_BTN_CLOSE       10002
     #define IDS_BTN_OK          10003
-    #define IDS_SAVE_PASS       10004
-    #define IDS_LOGIN_GRPBOX    10005
-    #define IDS_LABEL_LOGIN     10006
-    #define IDS_LABEL_ID        10007
-    #define IDS_LABEL_PASSWD    10008
+    #define IDS_BTN_CANCEL      10004
+    #define IDS_SAVE_PASS       10005
+    #define IDS_LOGIN_GRPBOX    10006
+    #define IDS_LABEL_LOGIN     10007
+    #define IDS_LABEL_ID        10008
+    #define IDS_LABEL_PASSWD    10009
 
 

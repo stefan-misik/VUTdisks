@@ -138,6 +138,7 @@ BEGIN
     IDS_BTN_MAP         "Map"
     IDS_BTN_CLOSE       "Close"
     IDS_BTN_OK          "OK"
+    IDS_BTN_CANCEL      "Cancel"
     IDS_SAVE_PASS       "Save this password"
     IDS_LOGIN_GRPBOX    "Login"
     IDS_LABEL_LOGIN     "Login"
