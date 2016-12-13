@@ -65,11 +65,11 @@ BEGIN
     PUSHBUTTON      "Close",IDCANCEL,191,210,50,14, WS_TABSTOP
     CONTROL         "",IDC_SHOWP,"Button",BS_CHECKBOX,210,127,14,14
     GROUPBOX        "Login",IDC_STATIC,24,78,210,87
-    LTEXT           "Login",IDC_STATIC,36,99,18,14
-    LTEXT           "ID",IDC_STATIC,35,115,8,14
+    LTEXT           "Login",IDC_STATIC,35,98,18,14
+    LTEXT           "ID",IDC_STATIC,35,114,8,14
     CONTROL         "",IDC_LOGO,"Static",SS_OWNERDRAW,0,0,255,70
     CONTROL         "",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,24,176,210,8
-    LTEXT           "Password",IDC_STATIC,35,131,32,14
+    LTEXT           "Password",IDC_STATIC,35,130,32,14
     ICON            "",IDC_WARNS,25,187,30,30,NOT WS_VISIBLE
     CONTROL         "There were some errors. <a>Show details</a>",IDC_ERR_LIST,
                     "SysLink",NOT WS_VISIBLE | WS_TABSTOP,42,190,146,11

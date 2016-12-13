@@ -101,7 +101,7 @@ static VOID DoWindows10Integration(VOID)
     tile.tile_color.red = 0xdc;
     tile.tile_color.green = 0x00;
     tile.tile_color.blue = 0x21;
-    tile.flags = 0;
+    tile.flags = WIN_TILE_FLAGS_SHOW_NAME;
     tile.logo150 = NULL;
     tile.logo70 = NULL;
     
