@@ -45,5 +45,9 @@ extern HANDLE g_hHeap;
     #define PBS_MARQUEE 0x08
 #endif
 
+/* Stringification */
+#define STRINGIFY(s) STRINGIFYX(s)
+#define STRINGIFYX(s) #s
+
 
 #endif	/* COMMON_H */

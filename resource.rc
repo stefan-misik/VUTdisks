@@ -32,7 +32,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Stefan Misik"
             VALUE "FileDescription", PROJECT_NAME
-            VALUE "FileVersion", PROJECT_VER
+            VALUE "FileVersion", PROJECT_LAST_RELEASE
             VALUE "InternalName", PROJECT_NAME
             VALUE "LegalCopyright", PROJECT_CPYR
             VALUE "OriginalFilename", PROJECT_NAME ".exe"
@@ -119,6 +119,7 @@ BEGIN
         MENUITEM "&Remove Saved Login Data",    ID_REMOVEREGISTRYDATA
         MENUITEM "R&un at Startup",             ID_RUNATSTARTUP
         MENUITEM SEPARATOR
+
         MENUITEM "Windows 8.1/10 &Integration", ID_VISUALMANIFEST
         MENUITEM SEPARATOR
 

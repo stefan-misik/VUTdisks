@@ -4,7 +4,7 @@
 /*   (c) 2014 Ing. Stefan Misik                                               */
 /*                                                                            */
 /*   Description                                                              */
-/*   Tool to connecting new VUT disks.                                        */
+/*   Tool to connecting new VUT Brno disks.                                   */
 /*                                                                            */
 /* ========================================================================== */
 #include <Shlwapi.h>

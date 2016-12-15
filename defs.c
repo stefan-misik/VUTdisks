@@ -3,6 +3,7 @@
 const TCHAR lpProjectName[] = TEXT(PROJECT_NAME);
 const TCHAR lpProjectAuthor[] = TEXT(PROJECT_AUTHOR);
 const TCHAR lpProjectVer[] = TEXT(PROJECT_VER);
+const TCHAR lpProjectLastRelease[] = TEXT(PROJECT_LAST_RELEASE);
 const TCHAR lpProjectGit[] = TEXT(PROJECT_GIT);
 const TCHAR lpProjectWeb[] = TEXT(PROJECT_WEB);
 const TCHAR lpProjectMail[] = TEXT(PROJECT_MAIL);

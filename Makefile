@@ -24,18 +24,21 @@ CFLAGS	    = -c -municode
 LDFLAGS	    = -static  -mwindows -municode
 LDLIBS	    = -lcomctl32 -lmpr -lcrypt32 -ladvapi32 -luser32 -lkernel32 \
               -lshlwapi
+# Number to subtract from the last git commits count 
+LAST_COMMIT = 32
 
 ################################################################################
 # Git versions
 GIT_VERSION = $(shell git describe --dirty --always)
 GIT_TAG     = $(shell git describe --abbrev=0 --tags)
-GIT_COMMITS = $(shell git rev-list --all --count)
+GIT_COMMITS = $$(( $(shell git rev-list --all --count) - $(LAST_COMMIT) ))
 
 # Git defines
-PROJ_DEFINES := -DPROJECT_NAME=\"$(PROJ)\"       \
-		-DPROJECT_COMMITS=$(GIT_COMMITS) \
-		-DPROJECT_VER=\"$(GIT_TAG)\"     \
-	        -DPROJECT_GIT=\"$(GIT_VERSION)\"
+PROJ_DEFINES := -DPROJECT_NAME=\"$(PROJ)\"		    \
+		-DPROJECT_COMMITS=$(GIT_COMMITS)	    \
+		-DPROJECT_LAST_RELEASE=\"$(GIT_TAG)\"	    \
+	        -DPROJECT_GIT=\"$(GIT_VERSION)\"	    \
+		-DPROJECT_LAST_COMMIT=$(LAST_COMMIT)
 
 # Objects and outputs
 OBJ = $(RES:.rc=.o) $(SRC:.c=.o)
