@@ -7,6 +7,7 @@
 #define IDI_MAIN                        103
 #define IDI_WARN                        104
 #define IDI_LOGO_IMAGE                  105
+#define IDI_REVEAL                      106
 
 #define IDR_MENU                        40000
     #define ID_REMOVEREGISTRYDATA           40001
@@ -24,9 +25,10 @@
     #define IDC_ID                          1005
     #define IDC_SHOWP                       1006
     #define IDC_LOGO                        1007
-    #define IDC_SAVE_PASS                   1009
-    #define IDC_ERR_LIST                    1010
-    #define IDC_WARNS                       1011
+    #define IDC_SAVE_LOGIN                  1009
+    #define IDC_SAVE_PASS                   1010
+    #define IDC_ERR_LIST                    1011
+    #define IDC_WARNS                       1012
 
 #define IDD_ABOUT       1030
     #define IDC_APP_ICON                    1031

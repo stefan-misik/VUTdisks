@@ -18,6 +18,11 @@ extern TCHAR g_lpLogin[LOGIN_MAX_LENGTH];
 extern TCHAR g_lpId[LOGIN_MAX_LENGTH];
 extern TCHAR g_lpPassword[PASSWORD_MAX_LENGTH];
 
+VOID VUTDisksEnableSavePassword(
+    HWND hwndDlg,
+    BOOL bEnable
+);
+
 
 #endif /* VUT_DISKS_H */
 

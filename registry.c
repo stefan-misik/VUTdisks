@@ -144,6 +144,7 @@ VOID ReadRegistry(HWND hwnd)
 {	
 	DWORD dwLength;
 	DWORD dwType;
+    BOOL bLoadedLogin = FALSE;
     
     /* Check key */
     if(!g_bMyRegKeyValid)
@@ -162,6 +163,11 @@ VOID ReadRegistry(HWND hwnd)
 	}	
 	g_lpLogin[dwLength] = TEXT('\0');	
 	SetDlgItemText(hwnd, IDC_LOGIN, g_lpLogin);
+    
+    if(0 != dwLength)
+    {
+        bLoadedLogin = TRUE;
+    }
 
 	/* Read ID */
 	dwLength = (LOGIN_MAX_LENGTH - 1) * sizeof(TCHAR);
@@ -174,6 +180,13 @@ VOID ReadRegistry(HWND hwnd)
 	}
 	g_lpLogin[dwLength] = TEXT('\0');
 	SetDlgItemText(hwnd, IDC_ID, g_lpLogin);
+    
+    if(0 != dwLength && bLoadedLogin)
+    {
+        SendDlgItemMessage(hwnd, IDC_SAVE_LOGIN, 
+            BM_SETCHECK, (WPARAM)BST_CHECKED, (LPARAM)0);
+    }
+    VUTDisksEnableSavePassword(hwnd, 0 != dwLength && bLoadedLogin);
 
 	/* Read Password length*/
 	if (ERROR_SUCCESS ==
@@ -206,7 +219,7 @@ VOID ReadRegistry(HWND hwnd)
 				LocalFree(dbOutput.pbData);
 
 				SendDlgItemMessage(hwnd, IDC_SAVE_PASS, 
-                    BM_SETCHECK, (WPARAM)BST_CHECKED, 0);
+                    BM_SETCHECK, (WPARAM)BST_CHECKED, (LPARAM)0);
 			}
 			else
 			{
@@ -238,48 +251,53 @@ VOID WriteRegistry(HWND hwnd)
         return;
     }
 
-	/* Save Login */
-	dwLength = GetDlgItemText(hwnd, IDC_LOGIN, g_lpLogin, LOGIN_MAX_LENGTH);
-	RegSetValueEx(g_hMyRegKey, TEXT("szLogin"), 0,
-		REG_SZ, (LPBYTE)g_lpLogin, dwLength * sizeof(TCHAR));
-
-	/* Save Id */
-	dwLength = GetDlgItemText(hwnd, IDC_ID, g_lpId, LOGIN_MAX_LENGTH);
-	RegSetValueEx(g_hMyRegKey, TEXT("szId"), 0,
-		REG_SZ, (LPBYTE)g_lpId, dwLength * sizeof(TCHAR));
-
-	/* If 'Save Password' is checked */	
+    /* If 'Save Login data' is checked */	
 	if (BST_CHECKED ==
-		SendDlgItemMessage(hwnd, IDC_SAVE_PASS, BM_GETCHECK, 0, 0))
-	{
-		DATA_BLOB dbInput, dbOutput;
+		SendDlgItemMessage(hwnd, IDC_SAVE_LOGIN, BM_GETCHECK, 0, 0))
+	{    
+        /* Save Login */
+        dwLength = GetDlgItemText(hwnd, IDC_LOGIN, g_lpLogin, LOGIN_MAX_LENGTH);
+        RegSetValueEx(g_hMyRegKey, TEXT("szLogin"), 0,
+            REG_SZ, (LPBYTE)g_lpLogin, dwLength * sizeof(TCHAR));
 
-		dbInput.cbData = GetDlgItemText(hwnd, IDC_PASSWD, g_lpPassword,
-			PASSWORD_MAX_LENGTH) * sizeof(TCHAR);
-		dbInput.pbData = (PBYTE)g_lpPassword;
+        /* Save Id */
+        dwLength = GetDlgItemText(hwnd, IDC_ID, g_lpId, LOGIN_MAX_LENGTH);
+        RegSetValueEx(g_hMyRegKey, TEXT("szId"), 0,
+            REG_SZ, (LPBYTE)g_lpId, dwLength * sizeof(TCHAR));
 
-		/* Encrypt Password */
-		if (FALSE ==
-			CryptProtectData(&dbInput, NULL, NULL, NULL,
-			NULL, 0, &dbOutput))
-		{
-			dbOutput.cbData = 0;
-			dbOutput.pbData = NULL;
-		}		
+        /* If 'Save Password' is checked */	
+        if (BST_CHECKED ==
+            SendDlgItemMessage(hwnd, IDC_SAVE_PASS, BM_GETCHECK, 0, 0))
+        {
+            DATA_BLOB dbInput, dbOutput;
 
-		/* Store Password */
-		RegSetValueEx(g_hMyRegKey, TEXT("pbPassword"), 0,
-			REG_BINARY, dbOutput.pbData, dbOutput.cbData);
+            dbInput.cbData = GetDlgItemText(hwnd, IDC_PASSWD, g_lpPassword,
+                PASSWORD_MAX_LENGTH) * sizeof(TCHAR);
+            dbInput.pbData = (PBYTE)g_lpPassword;
 
-		if (dbOutput.cbData > 0)
-		{
-			LocalFree(dbOutput.pbData);
-		}
-	}
-	else
-	{
-		/* Clear Password */
-		RegSetValueEx(g_hMyRegKey, TEXT("pbPassword"), 0,
-			REG_BINARY, (LPBYTE)NULL, 0);
-	}
+            /* Encrypt Password */
+            if (FALSE ==
+                CryptProtectData(&dbInput, NULL, NULL, NULL,
+                NULL, 0, &dbOutput))
+            {
+                dbOutput.cbData = 0;
+                dbOutput.pbData = NULL;
+            }		
+
+            /* Store Password */
+            RegSetValueEx(g_hMyRegKey, TEXT("pbPassword"), 0,
+                REG_BINARY, dbOutput.pbData, dbOutput.cbData);
+
+            if (dbOutput.cbData > 0)
+            {
+                LocalFree(dbOutput.pbData);
+            }
+        }
+        else
+        {
+            /* Clear Password */
+            RegSetValueEx(g_hMyRegKey, TEXT("pbPassword"), 0,
+                REG_BINARY, (LPBYTE)NULL, 0);
+        }
+    }    
 }

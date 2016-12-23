@@ -19,7 +19,7 @@
 
 #define DEFAULT_PASSWD_CHAR 0x25CF
 
-#define LOGO_IMAGE_NAME PROJECT_NAME "_logo.png"
+#define LOGO_IMAGE_NAME PROJECT_NAME ".Logo.png"
 
 HINSTANCE g_hMyInstance;
 HWND g_hwndMain;
@@ -32,6 +32,7 @@ TCHAR g_lpId[LOGIN_MAX_LENGTH];
 TCHAR g_lpPassword[PASSWORD_MAX_LENGTH];
 
 HICON g_hSmallWarnIcon;
+HICON g_hRevIcon;
 HMENU g_hMainMenu = NULL;
 HANDLE g_hLogoImage;
 
@@ -145,6 +146,26 @@ static VOID DoWindows10Integration(VOID)
                 &tile);
 
         HeapFree(g_hHeap, 0, file_name);
+    }
+}
+
+/******************************************************************************/
+VOID VUTDisksEnableSavePassword(
+    HWND hwndDlg,
+    BOOL bEnable
+)
+{
+    if(bEnable)
+    {
+        EnableWindow(GetDlgItem(hwndDlg, IDC_SAVE_PASS), 
+            TRUE);
+    }
+    else
+    {
+        EnableWindow(GetDlgItem(hwndDlg, IDC_SAVE_PASS), 
+            FALSE);
+        SendDlgItemMessage(hwndDlg, IDC_SAVE_PASS, 
+            BM_SETCHECK, (WPARAM)BST_UNCHECKED,(LPARAM)0);
     }
 }
 
@@ -324,7 +345,10 @@ INT_PTR CALLBACK DialogProc(
 			EnableWindow(GetDlgItem(hwndToNotify, IDC_ID), TRUE);
 			EnableWindow(GetDlgItem(hwndToNotify, IDC_PASSWD), TRUE);
 			EnableWindow(GetDlgItem(hwndToNotify, IDCANCEL), TRUE);
-			EnableWindow(GetDlgItem(hwndToNotify, IDC_SAVE_PASS), TRUE);
+            EnableWindow(GetDlgItem(hwndToNotify, IDC_SAVE_LOGIN), TRUE);
+            VUTDisksEnableSavePassword(hwndDlg, BST_CHECKED ==
+                SendDlgItemMessage(hwndDlg, IDC_SAVE_LOGIN, 
+                BM_GETCHECK, 0, 0));
 
 			if (TRUE == g_bIsCancelling)
 			{
@@ -432,6 +456,7 @@ INT_PTR CALLBACK DialogProc(
                                 EnableWindow(GetDlgItem(hwndDlg, IDC_LOGIN), FALSE);
                                 EnableWindow(GetDlgItem(hwndDlg, IDC_ID), FALSE);
                                 EnableWindow(GetDlgItem(hwndDlg, IDC_PASSWD), FALSE);
+                                EnableWindow(GetDlgItem(hwndDlg, IDC_SAVE_LOGIN), FALSE);
                                 EnableWindow(GetDlgItem(hwndDlg, IDC_SAVE_PASS), FALSE);
 
                                 ProgressBarMarquee(GetDlgItem(hwndDlg, IDC_PROGRESS), FALSE);
@@ -487,6 +512,11 @@ INT_PTR CALLBACK DialogProc(
                         InvalidateRect(hPassWnd, NULL, TRUE);                        
                         return TRUE;
                     }
+                    case IDC_SAVE_LOGIN:
+                        VUTDisksEnableSavePassword(hwndDlg, BST_CHECKED ==
+                            SendDlgItemMessage(hwndDlg, IDC_SAVE_LOGIN, 
+                            BM_GETCHECK, 0, 0));
+                        return TRUE;
                 }
                 break;
 
@@ -515,7 +545,7 @@ INT_PTR CALLBACK DialogProc(
                 case ID_REMOVEREGISTRYDATA:
 
                     if (IDYES == MessageBox(hwndDlg,
-                        TEXT("This will remove Login, Id and Password ")\
+                        TEXT("This will remove Login, ID and Password ")\
                         TEXT("stored in Registry database.\r\n")\
                         TEXT("\r\nDo you wish to continue?"),
                         g_lpCaption, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
@@ -620,19 +650,19 @@ INT_PTR CALLBACK DialogProc(
 	case WM_INITDIALOG:
 	{
 		MONITORINFO mi;
-                INITCOMMONCONTROLSEX icex;
-        
-                /* Initialize common controls */        
-                icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
-                icex.dwICC = ICC_STANDARD_CLASSES;
-                InitCommonControlsEx(&icex);
+        INITCOMMONCONTROLSEX icex;
+
+        /* Initialize common controls */        
+        icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+        icex.dwICC = ICC_STANDARD_CLASSES;
+        InitCommonControlsEx(&icex);
 		
 		/* Move windows to the center of monitor */
 		mi.cbSize = sizeof(MONITORINFO);
-		if (FALSE != GetMonitorInfo(MonitorFromCursor(), &mi))
+		if(FALSE != GetMonitorInfo(MonitorFromCursor(), &mi))
 		{
 			RECT rc;
-			if (TRUE == GetWindowRect(hwndDlg, &rc))
+			if(TRUE == GetWindowRect(hwndDlg, &rc))
 			{
 				LONG lWidth = rc.right - rc.left;
 				LONG lHeight = rc.bottom - rc.top;
@@ -645,13 +675,19 @@ INT_PTR CALLBACK DialogProc(
 					TRUE);
 			}
 		}
-
-		/* Set Small Warning icon */
-		if (NULL != g_hSmallWarnIcon)
+        
+        /* Set Small Warning icon */
+		if(NULL != g_hSmallWarnIcon)
 		{
 			SendDlgItemMessage(hwndDlg, IDC_WARNS, STM_SETICON,
 				(WPARAM)g_hSmallWarnIcon, 0);
-		}		
+		}
+        
+        if(NULL != g_hRevIcon)
+        {
+            SendDlgItemMessage(hwndDlg, IDC_SHOWP, BM_SETIMAGE,
+                (WPARAM)IMAGE_ICON, (LPARAM)g_hRevIcon);
+        }
 
 		/* Set Edit Controls Limits */
 		SendDlgItemMessage(hwndDlg, IDC_LOGIN, EM_SETLIMITTEXT,
@@ -738,6 +774,9 @@ INT WINAPI wWinMain(
 
 	g_hSmallWarnIcon = LoadImage(g_hMyInstance, MAKEINTRESOURCE(IDI_WARN),
 		IMAGE_ICON, 24, 24, LR_DEFAULTCOLOR);
+    
+    g_hRevIcon = LoadImage(g_hMyInstance, MAKEINTRESOURCE(IDI_REVEAL),
+		IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
 
 	/* Create main Window */
 	g_hwndMain = CreateDialogParam(
@@ -759,7 +798,7 @@ INT WINAPI wWinMain(
 
 	/* Create Tooltips */
     hwndShowPTooltip = CreateToolTip(IDC_SHOWP, g_hwndMain,
-            TEXT("Show password"), 400);
+            TEXT("Show / hide password"), 400);
     
 	hwndPassTooltip = CreateToolTip(IDC_SAVE_PASS, g_hwndMain, 
 		TEXT("Password will be stored in encrypted form inside\r\n")\
@@ -841,6 +880,11 @@ INT WINAPI wWinMain(
 	/* Close My Reg Key */
 	CloseMyRegKey();
 
+    if(NULL != g_hRevIcon)
+    {
+        DestroyIcon(g_hRevIcon);
+    }
+    
 	/* Destroy Warn Icon */
 	if (NULL != g_hSmallWarnIcon)
 	{

@@ -7,6 +7,7 @@
 
 /******************************************************************************/
 IDI_MAIN                ICON                    "res\\icon.ico"
+IDI_REVEAL              ICON                    "res\\reveal.ico"
 IDI_WARN                ICON                    "res\\warning.ico"
 
 /******************************************************************************/
@@ -49,7 +50,7 @@ END
 
 
 /******************************************************************************/
-IDD_MAIN_WND DIALOGEX 0, 0, 255, 231
+IDD_MAIN_WND DIALOGEX 0, 0, 250, 242
 STYLE   DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | 
         WS_OVERLAPPED | WS_VISIBLE | WS_CAPTION | WS_SYSMENU 
 EXSTYLE WS_EX_APPWINDOW
@@ -57,22 +58,40 @@ CAPTION PROJECT_DESC
 MENU IDR_MENU
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    EDITTEXT        IDC_LOGIN,76,95,145,14,ES_LOWERCASE | ES_AUTOHSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_ID,76,111,145,14,ES_AUTOHSCROLL | ES_NUMBER | WS_TABSTOP
-    EDITTEXT        IDC_PASSWD,76,127,130,14,ES_PASSWORD | ES_AUTOHSCROLL | WS_TABSTOP
-    CONTROL         "Save this password",IDC_SAVE_PASS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,76,146,74,10
-    DEFPUSHBUTTON   "Map",IDOK,132,210,50,14, WS_TABSTOP
-    PUSHBUTTON      "Close",IDCANCEL,191,210,50,14, WS_TABSTOP
-    CONTROL         "",IDC_SHOWP,"Button",BS_CHECKBOX,210,127,14,14
-    GROUPBOX        "Login",IDC_STATIC,24,78,210,87
-    LTEXT           "Login",IDC_STATIC,35,98,18,14
-    LTEXT           "ID",IDC_STATIC,35,114,8,14
-    CONTROL         "",IDC_LOGO,"Static",SS_OWNERDRAW,0,0,255,70
-    CONTROL         "",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,24,176,210,8
-    LTEXT           "Password",IDC_STATIC,35,130,32,14
-    ICON            "",IDC_WARNS,25,187,30,30,NOT WS_VISIBLE
+    CONTROL         "",IDC_LOGO,"Static",SS_OWNERDRAW,0,0,255,67
+
+    GROUPBOX        "Login",IDC_STATIC,7,77,236,96
+
+    LTEXT           "Login:",IDC_STATIC,13,91,35,14
+    EDITTEXT        IDC_LOGIN,55,88,182,14,
+                    ES_LOWERCASE | ES_AUTOHSCROLL | WS_TABSTOP
+
+    LTEXT           "ID:",IDC_STATIC,13,109,35,14
+    EDITTEXT        IDC_ID,55,106,182,14,
+                    ES_AUTOHSCROLL | ES_NUMBER | WS_TABSTOP
+
+    LTEXT           "Password:",IDC_STATIC,13,127,35,14
+    EDITTEXT        IDC_PASSWD,55,124,154,14,
+                    ES_PASSWORD | ES_AUTOHSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_SHOWP,"Button",BS_CHECKBOX | BS_PUSHLIKE | BS_ICON,
+                    213,124,24,14
+
+    CONTROL         "Save the login credentials",IDC_SAVE_LOGIN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,55,142,154,10
+    CONTROL         "Save the password",IDC_SAVE_PASS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,67,156,154,10
+
+    ICON            "",IDC_WARNS,13,180,17,17, NOT WS_VISIBLE
     CONTROL         "There were some errors. <a>Show details</a>",IDC_ERR_LIST,
-                    "SysLink",NOT WS_VISIBLE | WS_TABSTOP,42,190,146,11
+                    "SysLink", NOT WS_VISIBLE | WS_TABSTOP,32,186,200,8
+
+    CONTROL         "",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,
+                    7,201,236,8
+
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,216,236,1
+
+    DEFPUSHBUTTON   "Map",IDOK,136,221,50,14, WS_TABSTOP
+    PUSHBUTTON      "Close",IDCANCEL,193,221,50,14, WS_TABSTOP
 END
 
 /******************************************************************************/
@@ -116,17 +135,17 @@ IDR_MENU MENU
 BEGIN
     POPUP "&Disk Mapper"
     BEGIN
-        MENUITEM "&Remove Saved Login Data",    ID_REMOVEREGISTRYDATA
-        MENUITEM "R&un at Startup",             ID_RUNATSTARTUP
+        MENUITEM "&Remove Saved Login Credentials", ID_REMOVEREGISTRYDATA
+        MENUITEM "R&un at Startup",                 ID_RUNATSTARTUP
         MENUITEM SEPARATOR
 
-        MENUITEM "Windows 8.1/10 &Integration", ID_VISUALMANIFEST
+        MENUITEM "Windows 8.1/10 &Integration",     ID_VISUALMANIFEST
         MENUITEM SEPARATOR
 
-        MENUITEM "E&xit",                       ID_EXIT
+        MENUITEM "E&xit",                           ID_EXIT
     END    
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About",                      ID_MENU_ABOUT
+        MENUITEM "&About",                          ID_MENU_ABOUT
     END    
 END
