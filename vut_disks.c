@@ -349,6 +349,7 @@ INT_PTR CALLBACK DialogProc(
             VUTDisksEnableSavePassword(hwndDlg, BST_CHECKED ==
                 SendDlgItemMessage(hwndDlg, IDC_SAVE_LOGIN, 
                 BM_GETCHECK, 0, 0));
+            EnableWindow(GetDlgItem(hwndToNotify, IDC_SHOWP), TRUE);
 
 			if (TRUE == g_bIsCancelling)
 			{
@@ -458,6 +459,7 @@ INT_PTR CALLBACK DialogProc(
                                 EnableWindow(GetDlgItem(hwndDlg, IDC_PASSWD), FALSE);
                                 EnableWindow(GetDlgItem(hwndDlg, IDC_SAVE_LOGIN), FALSE);
                                 EnableWindow(GetDlgItem(hwndDlg, IDC_SAVE_PASS), FALSE);
+                                EnableWindow(GetDlgItem(hwndDlg, IDC_SHOWP), FALSE);
 
                                 ProgressBarMarquee(GetDlgItem(hwndDlg, IDC_PROGRESS), FALSE);
                                 SendDlgItemMessage(hwndDlg, IDC_PROGRESS, PBM_SETSTATE, PBST_NORMAL, 0);
