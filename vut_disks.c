@@ -214,7 +214,8 @@ VOID DisplayErrMessage(HWND hwndParent)
 	TEXT("Q: "), 
 	TEXT("R: "), 
 	TEXT("S: "), 
-	TEXT("T: ") };
+	TEXT("T: "),
+    TEXT("V: ") };
     
     /* Allocate memory */
     lpErrMessage = (TCHAR *)HeapAlloc(g_hHeap, 0, sizeof(TCHAR) *

@@ -4,7 +4,7 @@
 #include "common.h"
 #include "vut_disks.h"
 
-extern DWORD g_lpdwErrors[MAX_DISKS];
+extern DWORD g_lpdwErrors[];
 extern UINT g_uErrorsCnt;
 extern BOOL g_bErrors;
 

@@ -2,7 +2,19 @@
 
 #include <wchar.h>
 
-DWORD g_lpdwErrors[MAX_DISKS];
+#define DISK_NUM 6
+
+#define DISK_P_ADDR "\\\\ad.feec.vutbr.cz\\homes.id\\vutbr.cz\\%s"
+#define DISK_Q_ADDR "\\\\deza.feec.vutbr.cz\\app"
+#define DISK_R_ADDR "\\\\deza.feec.vutbr.cz\\doc"
+#define DISK_S_ADDR "\\\\deza.feec.vutbr.cz\\grp"
+#define DISK_T_ADDR "\\\\deza.feec.vutbr.cz\\inst"
+#define DISK_V_ADDR "\\\\gigadisk2.ro.vutbr.cz\\GIGADISK2\\home\\%c\\%c\\%c\\%s"
+
+#define BUT_DOMAIN "%s@vutbr.cz"
+
+
+DWORD g_lpdwErrors[DISK_NUM];
 UINT g_uErrorsCnt = 0;
 BOOL g_bErrors = FALSE;
 
@@ -11,6 +23,16 @@ VOID static MyCopyTString(LPTSTR lpDest, DWORD cNum, LPCTSTR lpSource)
 {
     #ifdef UNICODE
         wcsncpy((wchar_t *)lpDest, (const wchar_t *)lpSource, (size_t)cNum);
+    #endif
+}
+
+/******************************************************************************/
+size_t static MyTStrlen(LPCTSTR lpStr)
+{
+    #ifdef UNICODE
+        return wcslen(lpStr);
+    #else
+        return strlen(lpStr);
     #endif
 }
 
@@ -97,16 +119,18 @@ void static DestroyDiskInfoArray(LPDISKINFO lpDiskInfo, UINT uCount)
 LPDISKINFO static BuildDiskInfoArray(LPTSTR lpLogin,
 	LPTSTR lpId, LPTSTR lpPassword, LPUINT lpCount)
 {
-	LPDISKINFO lpDiskInfo = HeapAlloc(g_hHeap, HEAP_ZERO_MEMORY, sizeof(DISKINFO) * 5);
+	LPDISKINFO lpDiskInfo = HeapAlloc(g_hHeap, HEAP_ZERO_MEMORY, sizeof(DISKINFO) * DISK_NUM);
 	UINT c;
+    UINT cDomainLen = MyTStrlen(TEXT(BUT_DOMAIN));
+    UINT cIdLen = MyTStrlen(lpId);
 
 	*lpCount = 0;
 
 	if (NULL != lpDiskInfo)
 	{
-		for (c = 0; c < 5; c++)
+		for (c = 0; c < DISK_NUM; c ++)
 		{
-			lpDiskInfo[c].lpLogin = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) * LOGIN_MAX_LENGTH);
+			lpDiskInfo[c].lpLogin = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) * (LOGIN_MAX_LENGTH + cDomainLen));
 			if (NULL == lpDiskInfo[c].lpLogin)
 			{
 				DestroyDiskInfoArray(lpDiskInfo, 5);
@@ -132,44 +156,49 @@ LPDISKINFO static BuildDiskInfoArray(LPTSTR lpLogin,
 			}
 		}
 
-		*lpCount = 5;
+		*lpCount = DISK_NUM;
 
 		/* Disk P: */        
 		MyCopyTString(lpDiskInfo[0].lpLogin, LOGIN_MAX_LENGTH, lpLogin);
 		MyCopyTString(lpDiskInfo[0].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
-		MyCopyTString(lpDiskInfo[0].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("P:"));
-        
-        MyCopyTString(lpDiskInfo[0].lpRemoteName, REMOTE_NAME_MAX_LENGTH,
-			TEXT("\\\\ad.feec.vutbr.cz\\homes.id\\vutbr.cz\\"));
-        lstrcat(lpDiskInfo[0].lpRemoteName, lpId);       
+		MyCopyTString(lpDiskInfo[0].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("P:"));        
+        wsprintf(lpDiskInfo[0].lpRemoteName, 
+                TEXT(DISK_P_ADDR), lpId);
 
 		/* Disk Q: */
 		MyCopyTString(lpDiskInfo[1].lpLogin, LOGIN_MAX_LENGTH, lpLogin);
 		MyCopyTString(lpDiskInfo[1].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
 		MyCopyTString(lpDiskInfo[1].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("Q:"));
 		MyCopyTString(lpDiskInfo[1].lpRemoteName, REMOTE_NAME_MAX_LENGTH,
-			TEXT("\\\\deza.feec.vutbr.cz\\app"));
+			TEXT(DISK_Q_ADDR));
 
 		/* Disk R: */
 		MyCopyTString(lpDiskInfo[2].lpLogin, LOGIN_MAX_LENGTH, lpLogin);
 		MyCopyTString(lpDiskInfo[2].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
 		MyCopyTString(lpDiskInfo[2].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("R:"));
 		MyCopyTString(lpDiskInfo[2].lpRemoteName, REMOTE_NAME_MAX_LENGTH,
-			TEXT("\\\\deza.feec.vutbr.cz\\doc"));
+			TEXT(DISK_R_ADDR));
 
 		/* Disk S: */
 		MyCopyTString(lpDiskInfo[3].lpLogin, LOGIN_MAX_LENGTH, lpLogin);
 		MyCopyTString(lpDiskInfo[3].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
 		MyCopyTString(lpDiskInfo[3].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("S:"));
 		MyCopyTString(lpDiskInfo[3].lpRemoteName, REMOTE_NAME_MAX_LENGTH,
-			TEXT("\\\\deza.feec.vutbr.cz\\grp"));
+			TEXT(DISK_S_ADDR));
 
 		/* Disk T: */
 		MyCopyTString(lpDiskInfo[4].lpLogin, LOGIN_MAX_LENGTH, lpLogin);
 		MyCopyTString(lpDiskInfo[4].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
 		MyCopyTString(lpDiskInfo[4].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("T:"));
 		MyCopyTString(lpDiskInfo[4].lpRemoteName, REMOTE_NAME_MAX_LENGTH,
-			TEXT("\\\\deza.feec.vutbr.cz\\inst"));
+			TEXT(DISK_T_ADDR));
+        
+        /* Disk V: */
+        wsprintf(lpDiskInfo[5].lpLogin, TEXT(BUT_DOMAIN), lpLogin);
+		MyCopyTString(lpDiskInfo[5].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
+		MyCopyTString(lpDiskInfo[5].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("V:"));        
+        wsprintf(lpDiskInfo[5].lpRemoteName, TEXT(DISK_V_ADDR), 
+            lpId[cIdLen - 1], lpId[cIdLen - 2], lpId[cIdLen - 3], lpId);
 	}
 	
 	return lpDiskInfo;
@@ -235,52 +264,47 @@ LPMAPPARAM BeginMapDisks(HWND hwndDlg, LPTSTR lpLogin,
 	LPTSTR lpId, LPTSTR lpPassword)
 {	
 	LPMAPPARAM lpNewParam = NULL;
-	MAPPARAM tmpParam;
+    
+    lpNewParam = HeapAlloc(g_hHeap, 0, sizeof(MAPPARAM));
+	if (NULL == lpNewParam)
+	{		
+		return NULL;
+	}
 
-	tmpParam.dwGUIthreadId = GetCurrentThreadId();
-	tmpParam.hwndToNotify = hwndDlg;
+	lpNewParam->dwGUIthreadId = GetCurrentThreadId();
+	lpNewParam->hwndToNotify = hwndDlg;
+    
+    /* Build disks info */
+	lpNewParam->lpDisks = BuildDiskInfoArray(lpLogin, lpId,
+		lpPassword, &(lpNewParam->uDisksCnt));
+	if (NULL == lpNewParam->lpDisks)
+	{
+        HeapFree(g_hHeap, 0, lpNewParam);
+		return NULL;
+	}
 
 	/* Create stop event */
-	tmpParam.hStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-	if (NULL == tmpParam.hStopEvent)
-	{			
-		return NULL;
-	}
-
-	/* Build disks info */
-	tmpParam.lpDisks = BuildDiskInfoArray(lpLogin, lpId,
-		lpPassword, &(tmpParam.uDisksCnt));
-	if (NULL == tmpParam.lpDisks)
+	lpNewParam->hStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (NULL == lpNewParam->hStopEvent)
 	{
-		CloseHandle(lpNewParam->hStopEvent);
+        DestroyDiskInfoArray(lpNewParam->lpDisks, lpNewParam->uDisksCnt);
+        HeapFree(g_hHeap, 0, lpNewParam);
 		return NULL;
-	}
-
-	lpNewParam = HeapAlloc(g_hHeap, 0, sizeof(MAPPARAM));
-	if (NULL == lpNewParam)
-	{
-		CloseHandle(lpNewParam->hStopEvent);
-		DestroyDiskInfoArray(tmpParam.lpDisks, tmpParam.uDisksCnt);
-		return NULL;
-	}
+	}	
 
 	/* Create Thread */
-	tmpParam.hMapThread = CreateThread(NULL, 0, MapThread,
+	lpNewParam->hMapThread = CreateThread(NULL, 0, MapThread,
 		lpNewParam, CREATE_SUSPENDED, NULL);
-	if (NULL == tmpParam.hMapThread)
+	if (NULL == lpNewParam->hMapThread)
 	{
 		CloseHandle(lpNewParam->hStopEvent);
-		DestroyDiskInfoArray(tmpParam.lpDisks, tmpParam.uDisksCnt);
+		DestroyDiskInfoArray(lpNewParam->lpDisks, lpNewParam->uDisksCnt);
 		HeapFree(g_hHeap, 0, lpNewParam);
-
 		return NULL;
 	}
 
-	/* Copy tmpParameters into allocated memory */
-	*lpNewParam = tmpParam;		
-
 	/* Start Mapping */
-	ResumeThread(tmpParam.hMapThread);	
+	ResumeThread(lpNewParam->hMapThread);
 
 	return lpNewParam;
 }
