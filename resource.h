@@ -27,10 +27,12 @@
     #define IDC_LOGO                        1007
     #define IDC_SAVE_LOGIN                  1009
     #define IDC_SAVE_PASS                   1010
-    #define IDC_ERR_LIST                    1011
-    #define IDC_WARNS                       1012
+    #define IDC_DISK_SELECTED               1011
+    #define IDC_DISK_SELECT                 1012
+    #define IDC_ERR_LIST                    1013
+    #define IDC_WARNS                       1014
 
-#define IDD_ABOUT       1030
+#define IDD_ABOUT                       1030
     #define IDC_APP_ICON                    1031
     #define IDC_APP_NAME                    1032
     #define IDC_APP_VER                     1033
@@ -39,4 +41,7 @@
     #define IDC_LICTEXT                     1036
     #define IDC_GET_LATEST                  1037
     #define IDC_MAILTO                      1038
+
+#define IDD_DISK_SELECT                 1060
+
 

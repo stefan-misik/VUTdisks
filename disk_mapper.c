@@ -1,8 +1,7 @@
 #include "disk_mapper.h"
+#include "vut_disks.h"
 
 #include <wchar.h>
-
-#define DISK_NUM 6
 
 #define DISK_P_ADDR "\\\\ad.feec.vutbr.cz\\homes.id\\vutbr.cz\\%s"
 #define DISK_Q_ADDR "\\\\deza.feec.vutbr.cz\\app"
@@ -14,8 +13,7 @@
 #define BUT_DOMAIN "%s@vutbr.cz"
 
 
-DWORD g_lpdwErrors[DISK_NUM];
-UINT g_uErrorsCnt = 0;
+DWORD g_lpdwErrors[VUT_DISK_NUM];
 BOOL g_bErrors = FALSE;
 
 /******************************************************************************/
@@ -119,7 +117,7 @@ void static DestroyDiskInfoArray(LPDISKINFO lpDiskInfo, UINT uCount)
 LPDISKINFO static BuildDiskInfoArray(LPTSTR lpLogin,
 	LPTSTR lpId, LPTSTR lpPassword, LPUINT lpCount)
 {
-	LPDISKINFO lpDiskInfo = HeapAlloc(g_hHeap, HEAP_ZERO_MEMORY, sizeof(DISKINFO) * DISK_NUM);
+	LPDISKINFO lpDiskInfo = HeapAlloc(g_hHeap, HEAP_ZERO_MEMORY, sizeof(DISKINFO) * VUT_DISK_NUM);
 	UINT c;
     UINT cDomainLen = MyTStrlen(TEXT(BUT_DOMAIN));
     UINT cIdLen = MyTStrlen(lpId);
@@ -128,7 +126,7 @@ LPDISKINFO static BuildDiskInfoArray(LPTSTR lpLogin,
 
 	if (NULL != lpDiskInfo)
 	{
-		for (c = 0; c < DISK_NUM; c ++)
+		for (c = 0; c < VUT_DISK_NUM; c ++)
 		{
 			lpDiskInfo[c].lpLogin = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) * (LOGIN_MAX_LENGTH + cDomainLen));
 			if (NULL == lpDiskInfo[c].lpLogin)
@@ -156,47 +154,47 @@ LPDISKINFO static BuildDiskInfoArray(LPTSTR lpLogin,
 			}
 		}
 
-		*lpCount = DISK_NUM;
+		*lpCount = VUT_DISK_NUM;
 
-		/* Disk P: */        
+		/* Disk 0 */        
 		MyCopyTString(lpDiskInfo[0].lpLogin, LOGIN_MAX_LENGTH, lpLogin);
 		MyCopyTString(lpDiskInfo[0].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
-		MyCopyTString(lpDiskInfo[0].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("P:"));        
+		MyCopyTString(lpDiskInfo[0].lpLocalName, LOCAL_NAME_MAX_LENGTH, g_lpDisks[0]);        
         wsprintf(lpDiskInfo[0].lpRemoteName, 
                 TEXT(DISK_P_ADDR), lpId);
 
-		/* Disk Q: */
+		/* Disk 1 */
 		MyCopyTString(lpDiskInfo[1].lpLogin, LOGIN_MAX_LENGTH, lpLogin);
 		MyCopyTString(lpDiskInfo[1].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
-		MyCopyTString(lpDiskInfo[1].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("Q:"));
+		MyCopyTString(lpDiskInfo[1].lpLocalName, LOCAL_NAME_MAX_LENGTH, g_lpDisks[1]);
 		MyCopyTString(lpDiskInfo[1].lpRemoteName, REMOTE_NAME_MAX_LENGTH,
 			TEXT(DISK_Q_ADDR));
 
-		/* Disk R: */
+		/* Disk 2 */
 		MyCopyTString(lpDiskInfo[2].lpLogin, LOGIN_MAX_LENGTH, lpLogin);
 		MyCopyTString(lpDiskInfo[2].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
-		MyCopyTString(lpDiskInfo[2].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("R:"));
+		MyCopyTString(lpDiskInfo[2].lpLocalName, LOCAL_NAME_MAX_LENGTH, g_lpDisks[2]);
 		MyCopyTString(lpDiskInfo[2].lpRemoteName, REMOTE_NAME_MAX_LENGTH,
 			TEXT(DISK_R_ADDR));
 
-		/* Disk S: */
+		/* Disk 3 */
 		MyCopyTString(lpDiskInfo[3].lpLogin, LOGIN_MAX_LENGTH, lpLogin);
 		MyCopyTString(lpDiskInfo[3].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
-		MyCopyTString(lpDiskInfo[3].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("S:"));
+		MyCopyTString(lpDiskInfo[3].lpLocalName, LOCAL_NAME_MAX_LENGTH, g_lpDisks[3]);
 		MyCopyTString(lpDiskInfo[3].lpRemoteName, REMOTE_NAME_MAX_LENGTH,
 			TEXT(DISK_S_ADDR));
 
-		/* Disk T: */
+		/* Disk 4 */
 		MyCopyTString(lpDiskInfo[4].lpLogin, LOGIN_MAX_LENGTH, lpLogin);
 		MyCopyTString(lpDiskInfo[4].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
-		MyCopyTString(lpDiskInfo[4].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("T:"));
+		MyCopyTString(lpDiskInfo[4].lpLocalName, LOCAL_NAME_MAX_LENGTH, g_lpDisks[4]);
 		MyCopyTString(lpDiskInfo[4].lpRemoteName, REMOTE_NAME_MAX_LENGTH,
 			TEXT(DISK_T_ADDR));
         
-        /* Disk V: */
+        /* Disk 5 */
         wsprintf(lpDiskInfo[5].lpLogin, TEXT(BUT_DOMAIN), lpLogin);
 		MyCopyTString(lpDiskInfo[5].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
-		MyCopyTString(lpDiskInfo[5].lpLocalName, LOCAL_NAME_MAX_LENGTH, TEXT("V:"));        
+		MyCopyTString(lpDiskInfo[5].lpLocalName, LOCAL_NAME_MAX_LENGTH, g_lpDisks[5]);        
         wsprintf(lpDiskInfo[5].lpRemoteName, TEXT(DISK_V_ADDR), 
             lpId[cIdLen - 1], lpId[cIdLen - 2], lpId[cIdLen - 3], lpId);
 	}

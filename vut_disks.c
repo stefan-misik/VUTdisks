@@ -16,14 +16,25 @@
 #include "registry.h"
 #include "win_tile_manifest_gen.h"
 #include "about_dialog.h"
+#include "disk_select_dialog.h"
 
 #define DEFAULT_PASSWD_CHAR 0x25CF
 
 #define LOGO_IMAGE_NAME PROJECT_NAME ".Logo.png"
 
+const LPTSTR g_lpDisks[VUT_DISK_NUM] = {
+	TEXT("P:"),
+	TEXT("Q:"), 
+	TEXT("R:"), 
+	TEXT("S:"), 
+	TEXT("T:"),
+    TEXT("V:")
+};
+
 HINSTANCE g_hMyInstance;
 HWND g_hwndMain;
 HANDLE g_hHeap;
+UINT g_uErrorsCnt;
 
 LPTSTR g_lpCaption = TEXT(PROJECT_DESC);
 
@@ -209,14 +220,7 @@ VOID DisplayErrMessage(HWND hwndParent)
 	TCHAR * lpErrMessage;
 	UINT_PTR uPos = 0;
 	UINT uDisk;
-	static const LPTSTR lpDisks[] = {
-	TEXT("P: "),
-	TEXT("Q: "), 
-	TEXT("R: "), 
-	TEXT("S: "), 
-	TEXT("T: "),
-    TEXT("V: ") };
-    
+	    
     /* Allocate memory */
     lpErrMessage = (TCHAR *)HeapAlloc(g_hHeap, 0, sizeof(TCHAR) *
             ERROR_MESSAGE_BUFFER_LENGTH);
@@ -231,7 +235,7 @@ VOID DisplayErrMessage(HWND hwndParent)
 	for (uDisk = 0; uDisk < g_uErrorsCnt; uDisk++)
 	{
 		uPos += FormatMessage(FORMAT_MESSAGE_FROM_STRING,
-			lpDisks[uDisk],
+			g_lpDisks[uDisk],
 			0, 0, (LPTSTR)(((UINT_PTR)lpErrMessage) + (uPos * sizeof(TCHAR))),
 			(ERROR_MESSAGE_BUFFER_LENGTH - uPos), NULL);
 
@@ -489,37 +493,43 @@ INT_PTR CALLBACK DialogProc(
                     return TRUE;
                     
                 case IDC_SHOWP:
+                {
+                    HWND hPassWnd;
+
+                    /* Get the Password window handle */
+                    hPassWnd = GetDlgItem(hwndDlg, IDC_PASSWD);                        
+
+                    if(BST_CHECKED == 
+                        IsDlgButtonChecked(hwndDlg, IDC_SHOWP))
                     {
-                        HWND hPassWnd;
-                        
-                        /* Get the Password window handle */
-                        hPassWnd = GetDlgItem(hwndDlg, IDC_PASSWD);                        
-                        
-                        if(BST_CHECKED == 
-                            IsDlgButtonChecked(hwndDlg, IDC_SHOWP))
-                        {
-                            SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 
-                                (WPARAM)DEFAULT_PASSWD_CHAR, 0);
+                        SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 
+                            (WPARAM)DEFAULT_PASSWD_CHAR, 0);
 
-                            SendDlgItemMessage(hwndDlg, IDC_SHOWP, BM_SETCHECK,
-                                (WPARAM)BST_UNCHECKED, 0);                        
-                        }
-                        else
-                        {
-                            SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 0, 0);
-
-                            SendDlgItemMessage(hwndDlg, IDC_SHOWP, BM_SETCHECK,
-                                (WPARAM)BST_CHECKED, 0);
-                        }
-                        
-                        InvalidateRect(hPassWnd, NULL, TRUE);                        
-                        return TRUE;
+                        SendDlgItemMessage(hwndDlg, IDC_SHOWP, BM_SETCHECK,
+                            (WPARAM)BST_UNCHECKED, 0);                        
                     }
-                    case IDC_SAVE_LOGIN:
-                        VUTDisksEnableSavePassword(hwndDlg, BST_CHECKED ==
-                            SendDlgItemMessage(hwndDlg, IDC_SAVE_LOGIN, 
-                            BM_GETCHECK, 0, 0));
-                        return TRUE;
+                    else
+                    {
+                        SendMessage(hPassWnd, EM_SETPASSWORDCHAR, 0, 0);
+
+                        SendDlgItemMessage(hwndDlg, IDC_SHOWP, BM_SETCHECK,
+                            (WPARAM)BST_CHECKED, 0);
+                    }
+
+                    InvalidateRect(hPassWnd, NULL, TRUE);                        
+                    return TRUE;
+                }
+                
+                case IDC_SAVE_LOGIN:
+                    VUTDisksEnableSavePassword(hwndDlg, BST_CHECKED ==
+                        SendDlgItemMessage(hwndDlg, IDC_SAVE_LOGIN, 
+                        BM_GETCHECK, 0, 0));
+                    return TRUE;
+                
+                case IDC_DISK_SELECT:
+                    ShowDiskSelectDialog(hwndDlg, NULL);
+                    return TRUE;
+                        
                 }
                 break;
 

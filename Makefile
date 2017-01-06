@@ -16,7 +16,7 @@ endif
 # Project settings
 PROJ	= VUTdisks
 SRC	= vut_disks.c registry.c disk_mapper.c win_tile_manifest_gen.c  \
-          defs.c about_dialog.c
+          defs.c about_dialog.c disk_select_dialog.c
 RES	= resource.rc
 
 # Compile flags

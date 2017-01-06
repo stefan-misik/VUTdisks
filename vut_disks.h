@@ -11,9 +11,11 @@
 #define REMOTE_NAME_MAX_LENGTH MAX_PATH
 #define ERROR_MESSAGE_BUFFER_LENGTH 16384
 
+#define VUT_DISK_NUM 6
+
 extern LPTSTR g_lpCaption;
 
-
+extern const LPTSTR g_lpDisks[VUT_DISK_NUM];
 extern TCHAR g_lpLogin[LOGIN_MAX_LENGTH];
 extern TCHAR g_lpId[LOGIN_MAX_LENGTH];
 extern TCHAR g_lpPassword[PASSWORD_MAX_LENGTH];
