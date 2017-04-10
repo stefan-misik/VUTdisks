@@ -32,16 +32,17 @@
     #define IDC_ERR_LIST                    1013
     #define IDC_WARNS                       1014
 
-#define IDD_ABOUT                       1030
-    #define IDC_APP_ICON                    1031
-    #define IDC_APP_NAME                    1032
-    #define IDC_APP_VER                     1033
-    #define IDC_APP_GIT                     1034
-    #define IDC_APP_AUTHOR                  1035
-    #define IDC_LICTEXT                     1036
-    #define IDC_GET_LATEST                  1037
-    #define IDC_MAILTO                      1038
+#define IDD_ABOUT                       1100
+    #define IDC_APP_ICON                    1101
+    #define IDC_APP_NAME                    1102
+    #define IDC_APP_VER                     1103
+    #define IDC_APP_GIT                     1104
+    #define IDC_APP_AUTHOR                  1105
+    #define IDC_LICTEXT                     1106
+    #define IDC_GET_LATEST                  1107
+    #define IDC_MAILTO                      1108
 
-#define IDD_DISK_SELECT                 1060
-
+#define IDD_DISK_SELECT                 1200
+    #define IDC_DISK_LETTER_BASE        1240
+    #define IDC_DISK_ENABLE_BASE        1285
 

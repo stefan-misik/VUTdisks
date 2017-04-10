@@ -41,6 +41,7 @@ LPTSTR g_lpCaption = TEXT(PROJECT_DESC);
 TCHAR g_lpLogin[LOGIN_MAX_LENGTH];
 TCHAR g_lpId[LOGIN_MAX_LENGTH];
 TCHAR g_lpPassword[PASSWORD_MAX_LENGTH];
+DISKSELECTION g_ds;
 
 HICON g_hSmallWarnIcon;
 HICON g_hRevIcon;
@@ -349,12 +350,13 @@ INT_PTR CALLBACK DialogProc(
 			EnableWindow(GetDlgItem(hwndToNotify, IDC_LOGIN), TRUE);
 			EnableWindow(GetDlgItem(hwndToNotify, IDC_ID), TRUE);
 			EnableWindow(GetDlgItem(hwndToNotify, IDC_PASSWD), TRUE);
-			EnableWindow(GetDlgItem(hwndToNotify, IDCANCEL), TRUE);
+			EnableWindow(GetDlgItem(hwndToNotify, IDCANCEL), TRUE);                        
             EnableWindow(GetDlgItem(hwndToNotify, IDC_SAVE_LOGIN), TRUE);
             VUTDisksEnableSavePassword(hwndDlg, BST_CHECKED ==
                 SendDlgItemMessage(hwndDlg, IDC_SAVE_LOGIN, 
                 BM_GETCHECK, 0, 0));
             EnableWindow(GetDlgItem(hwndToNotify, IDC_SHOWP), TRUE);
+            EnableWindow(GetDlgItem(hwndToNotify, IDC_DISK_SELECT), TRUE);
 
 			if (TRUE == g_bIsCancelling)
 			{
@@ -465,6 +467,7 @@ INT_PTR CALLBACK DialogProc(
                                 EnableWindow(GetDlgItem(hwndDlg, IDC_SAVE_LOGIN), FALSE);
                                 EnableWindow(GetDlgItem(hwndDlg, IDC_SAVE_PASS), FALSE);
                                 EnableWindow(GetDlgItem(hwndDlg, IDC_SHOWP), FALSE);
+                                EnableWindow(GetDlgItem(hwndDlg, IDC_DISK_SELECT), FALSE);
 
                                 ProgressBarMarquee(GetDlgItem(hwndDlg, IDC_PROGRESS), FALSE);
                                 SendDlgItemMessage(hwndDlg, IDC_PROGRESS, PBM_SETSTATE, PBST_NORMAL, 0);
@@ -527,7 +530,7 @@ INT_PTR CALLBACK DialogProc(
                     return TRUE;
                 
                 case IDC_DISK_SELECT:
-                    ShowDiskSelectDialog(hwndDlg, NULL);
+                    ShowDiskSelectDialog(hwndDlg, &g_ds);
                     return TRUE;
                         
                 }

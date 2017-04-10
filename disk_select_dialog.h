@@ -12,17 +12,25 @@
 #include "vut_disks.h"
 
 
+/**
+ * @brief Disk selection structure
+ */
+typedef struct tagDISKSELECTION
+{
+    TCHAR aDiscLetters[VUT_DISK_NUM];   /** < Disk letters */
+    DWORD dwDiskEnable;                 /** < Disk enable flags */
+} DISKSELECTION, *LPDISKSELECTION;
+
 
 /**
  * @brief Show disk select dialog
  * 
  * @param[in] hwndParent Window handle to the parent window
- * @param[in,out] lpDiskSelector Array of logical values representing the
- *                selected disks
+ * @param[in,out] lpDiskSelection Structure containing the disk selection
  */
 INT_PTR ShowDiskSelectDialog(
     HWND hwndParent,
-    INT * lpDisksSelector 
+    LPDISKSELECTION lpDiskSelection
 );
 
 #endif	/* DISK_SELECT_DIALOG_H */
