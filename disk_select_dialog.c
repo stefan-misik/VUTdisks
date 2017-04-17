@@ -73,7 +73,7 @@ static VOID LoadSelection(
         hwnd = GetDlgItem(hwndDlg, IDC_DISK_LETTER_BASE + iDisk);        
         if(NULL != hwnd)
         {
-            lptstrLetter[0] = lpDiskSelection->aDiscLetters[iDisk];
+            lptstrLetter[0] = lpDiskSelection->aDiskLetters[iDisk];
             ComboBox_SelectString(hwnd, -1, lptstrLetter);
         }
     }
@@ -113,7 +113,7 @@ static VOID StoreSelection(
         {
             if(0 != ComboBox_GetText(hwnd, lptstrLetter,
                     sizeof(lptstrLetter)/sizeof(TCHAR)))
-                lpDiskSelection->aDiscLetters[iDisk] = lptstrLetter[0];
+                lpDiskSelection->aDiskLetters[iDisk] = lptstrLetter[0];
         }
     }
     /* Store enable flags */
@@ -171,6 +171,22 @@ INT_PTR static CALLBACK DiskSelectProc(
     }
     }
     return FALSE;    
+}
+
+/******************************************************************************/
+VOID DiskSelectGetDefaults(
+    LPDISKSELECTION lpDs
+)
+{
+    UINT uDisk;
+    
+    for(uDisk = 0; uDisk < (sizeof(g_aDefaultDiskLetters) / sizeof(TCHAR));
+        uDisk ++)
+    {
+        lpDs->aDiskLetters[uDisk] = g_aDefaultDiskLetters[uDisk];
+    }
+
+    lpDs->dwDiskEnable = ((DWORD)0xFFFFFFFF) >> (32 - VUT_DISK_NUM);
 }
 
 /******************************************************************************/

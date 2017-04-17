@@ -16,18 +16,17 @@
 #include "registry.h"
 #include "win_tile_manifest_gen.h"
 #include "about_dialog.h"
-#include "disk_select_dialog.h"
 
 #define DEFAULT_PASSWD_CHAR 0x25CF
 
 #define LOGO_IMAGE_NAME PROJECT_NAME ".Logo.png"
 
 const LPTSTR g_lpDisks[VUT_DISK_NUM] = {
-	TEXT("P:"),
-	TEXT("Q:"), 
-	TEXT("R:"), 
-	TEXT("S:"), 
-	TEXT("T:"),
+    TEXT("P:"),
+    TEXT("Q:"), 
+    TEXT("R:"), 
+    TEXT("S:"), 
+    TEXT("T:"),
     TEXT("V:")
 };
 
@@ -63,8 +62,8 @@ static BOOL WriteResourceToFile(
     /* Check passed values */
     if(INVALID_HANDLE_VALUE != hFile && NULL != hRsrc)
     {
-        DWORD   dwSize;
-        LPVOID  lpData;
+        DWORD dwSize;
+        LPVOID lpData;
         DWORD dwPos;
         DWORD dwWritten;
         HGLOBAL hgRsrc;
@@ -335,7 +334,7 @@ INT_PTR CALLBACK DialogProc(
 
 			g_lpdwErrors[g_uErrorsCnt++] = dwError;
 		}
-		else if (MAX_DISKS == wParam)
+		else if (INVALID_DISK_NUMBER == wParam)
 		{
 			HWND hwndToNotify = g_lpMapParam->hwndToNotify;
 
@@ -451,7 +450,7 @@ INT_PTR CALLBACK DialogProc(
                         /* If all fields were filled-in */
                         if (cnt > 0)
                         {
-                            WriteRegistry(hwndDlg);
+                            WriteLoginRegistry(hwndDlg);
 
                             /* Begin Disk Mapping */
                             g_lpMapParam = BeginMapDisks(hwndDlg, g_lpLogin,
@@ -530,7 +529,10 @@ INT_PTR CALLBACK DialogProc(
                     return TRUE;
                 
                 case IDC_DISK_SELECT:
-                    ShowDiskSelectDialog(hwndDlg, &g_ds);
+                    if(IDOK == ShowDiskSelectDialog(hwndDlg, &g_ds))
+                    {
+                        WriteDiskSelectionRegistry();
+                    }
                     return TRUE;
                         
                 }
@@ -561,8 +563,8 @@ INT_PTR CALLBACK DialogProc(
                 case ID_REMOVEREGISTRYDATA:
 
                     if (IDYES == MessageBox(hwndDlg,
-                        TEXT("This will remove Login, ID and Password ")\
-                        TEXT("stored in Registry database.\r\n")\
+                        TEXT("This will remove Login, ID, Password and other ")\
+                        TEXT("data stored in the Registry database.\r\n")\
                         TEXT("\r\nDo you wish to continue?"),
                         g_lpCaption, MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2))
                     {					

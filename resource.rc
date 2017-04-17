@@ -187,7 +187,7 @@ IDR_MENU MENU
 BEGIN
     POPUP "&Disk Mapper"
     BEGIN
-        MENUITEM "&Remove Saved Login Credentials", ID_REMOVEREGISTRYDATA
+        MENUITEM "&Remove Stored Data",             ID_REMOVEREGISTRYDATA
         MENUITEM "R&un at Startup",                 ID_RUNATSTARTUP
         MENUITEM SEPARATOR
 

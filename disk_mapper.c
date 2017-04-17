@@ -74,7 +74,7 @@ DWORD WINAPI static MapThread(LPVOID lpParameter)
 	if (NULL != param->hwndToNotify)
 	{
 		PostThreadMessage(param->dwGUIthreadId, WM_MAP_NOTIFY, 
-            (WPARAM)MAX_DISKS, (LPARAM)param);
+            (WPARAM)INVALID_DISK_NUMBER, (LPARAM)param);
 	}
 
 	ExitThread(c);
@@ -117,7 +117,8 @@ void static DestroyDiskInfoArray(LPDISKINFO lpDiskInfo, UINT uCount)
 LPDISKINFO static BuildDiskInfoArray(LPTSTR lpLogin,
 	LPTSTR lpId, LPTSTR lpPassword, LPUINT lpCount)
 {
-	LPDISKINFO lpDiskInfo = HeapAlloc(g_hHeap, HEAP_ZERO_MEMORY, sizeof(DISKINFO) * VUT_DISK_NUM);
+	LPDISKINFO lpDiskInfo = HeapAlloc(g_hHeap, HEAP_ZERO_MEMORY,
+        sizeof(DISKINFO) * VUT_DISK_NUM);
 	UINT c;
     UINT cDomainLen = MyTStrlen(TEXT(BUT_DOMAIN));
     UINT cIdLen = MyTStrlen(lpId);
@@ -128,25 +129,29 @@ LPDISKINFO static BuildDiskInfoArray(LPTSTR lpLogin,
 	{
 		for (c = 0; c < VUT_DISK_NUM; c ++)
 		{
-			lpDiskInfo[c].lpLogin = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) * (LOGIN_MAX_LENGTH + cDomainLen));
+			lpDiskInfo[c].lpLogin = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) *
+                (LOGIN_MAX_LENGTH + cDomainLen));
 			if (NULL == lpDiskInfo[c].lpLogin)
 			{
 				DestroyDiskInfoArray(lpDiskInfo, 5);
 				return NULL;
 			}
-			lpDiskInfo[c].lpPassword = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) * PASSWORD_MAX_LENGTH);
+			lpDiskInfo[c].lpPassword = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) *
+                PASSWORD_MAX_LENGTH);
 			if (NULL == lpDiskInfo[c].lpPassword)
 			{
 				DestroyDiskInfoArray(lpDiskInfo, 5);
 				return NULL;
 			}
-			lpDiskInfo[c].lpLocalName = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) * LOCAL_NAME_MAX_LENGTH);
+			lpDiskInfo[c].lpLocalName = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) *
+                LOCAL_NAME_MAX_LENGTH);
 			if (NULL == lpDiskInfo[c].lpLocalName)
 			{
 				DestroyDiskInfoArray(lpDiskInfo, 5);
 				return NULL;
 			}
-			lpDiskInfo[c].lpRemoteName = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) * REMOTE_NAME_MAX_LENGTH);
+			lpDiskInfo[c].lpRemoteName = HeapAlloc(g_hHeap, 0, sizeof(TCHAR) *
+                REMOTE_NAME_MAX_LENGTH);
 			if (NULL == lpDiskInfo[c].lpRemoteName)
 			{
 				DestroyDiskInfoArray(lpDiskInfo, 5);
@@ -165,7 +170,7 @@ LPDISKINFO static BuildDiskInfoArray(LPTSTR lpLogin,
 
 		/* Disk 1 */
 		MyCopyTString(lpDiskInfo[1].lpLogin, LOGIN_MAX_LENGTH, lpLogin);
-		MyCopyTString(lpDiskInfo[1].lpPassword, PASSWORD_MAX_LENGTH, lpPassword);
+		MyCopyTString(lpDiskInfo[1].lpPassword, PASSWORD_MAX_LENGTH,lpPassword);
 		MyCopyTString(lpDiskInfo[1].lpLocalName, LOCAL_NAME_MAX_LENGTH, g_lpDisks[1]);
 		MyCopyTString(lpDiskInfo[1].lpRemoteName, REMOTE_NAME_MAX_LENGTH,
 			TEXT(DISK_Q_ADDR));

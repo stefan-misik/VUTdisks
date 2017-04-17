@@ -1,15 +1,8 @@
-/* 
- * File:   disk_select_dialog.h
- * Author: xmisik00
- *
- * Created on Piatok, 2017, januára 6, 10:37
- */
-
 #ifndef DISK_SELECT_DIALOG_H
 #define	DISK_SELECT_DIALOG_H
 
 #include "common.h"
-#include "vut_disks.h"
+#include "config.h"
 
 
 /**
@@ -17,10 +10,19 @@
  */
 typedef struct tagDISKSELECTION
 {
-    TCHAR aDiscLetters[VUT_DISK_NUM];   /** < Disk letters */
+    TCHAR aDiskLetters[VUT_DISK_NUM];   /** < Disk letters */
     DWORD dwDiskEnable;                 /** < Disk enable flags */
 } DISKSELECTION, *LPDISKSELECTION;
 
+
+/**
+ * @brief Load default disk selection
+ * 
+ * @param lpDs[out] Disk selector structure to be filled with default settings
+ */
+VOID DiskSelectGetDefaults(
+    LPDISKSELECTION lpDs
+);
 
 /**
  * @brief Show disk select dialog

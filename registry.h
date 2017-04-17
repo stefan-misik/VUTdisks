@@ -16,7 +16,9 @@ VOID CloseMyRegKey(VOID);
 
 VOID ReadRegistry(HWND hwnd);
 
-VOID WriteRegistry(HWND hwnd);
+VOID WriteLoginRegistry(HWND hwnd);
+
+VOID WriteDiskSelectionRegistry(VOID);
 
 #endif /* REGISTRY_H */
 

@@ -1,7 +1,9 @@
 #include "registry.h"
 #include "resource.h"
 #include "vut_disks.h"
+#include "disk_mapper.h"
 #include <Wincrypt.h>
+#include <winnt.h>
 
 
 static HKEY g_hMyRegKey;
@@ -90,12 +92,19 @@ BOOL IsRegisteredToRunAtStartup(VOID)
 
 /******************************************************************************/
 BOOL DeleteMyRegKey(VOID)
-{    
+{
+    /* Close the registry Key */
+    CloseMyRegKey();
+
+    /* Delete the registry data */
 	if (RegDeleteKey(HKEY_CURRENT_USER, TEXT("Software\\VUTdisks")) != 
 	    ERROR_SUCCESS)
 	{
 		return FALSE;
 	}
+
+    /* Open the registry key */
+    OpenMyRegKey();
 
 	return TRUE;
 }
@@ -103,7 +112,7 @@ BOOL DeleteMyRegKey(VOID)
 /******************************************************************************/
 VOID OpenMyRegKey(VOID)
 {	
-	DWORD	dwDisposition;	
+	DWORD	dwDisposition;
 	
 	if (RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("Software\\VUTdisks"), 0,
 		NULL, 0, KEY_WRITE | KEY_READ | KEY_WOW64_32KEY,
@@ -126,6 +135,12 @@ VOID OpenMyRegKey(VOID)
 
 		RegSetValueEx(g_hMyRegKey, TEXT("pbPassword"), 0,
 			REG_BINARY, (LPBYTE)NULL, 0);
+
+        RegSetValueEx(g_hMyRegKey, TEXT("dwDiskEnable"), 0,
+			REG_SZ, (LPBYTE)NULL, 0);
+
+        RegSetValueEx(g_hMyRegKey, TEXT("szDiskLetters"), 0,
+			REG_SZ, (LPBYTE)NULL, 0);
 	}
 }
 
@@ -145,12 +160,37 @@ VOID ReadRegistry(HWND hwnd)
 	DWORD dwLength;
 	DWORD dwType;
     BOOL bLoadedLogin = FALSE;
+    BOOL bLoadedDiskSelection = FALSE;
     
     /* Check key */
     if(!g_bMyRegKeyValid)
     {
         return;
     }
+    
+    /* Read disk selection */
+    dwLength = sizeof(DWORD);
+    RegQueryValueEx(g_hMyRegKey, TEXT("dwDiskEnable"), 0,
+        &dwType, (LPBYTE)(&(g_ds.dwDiskEnable)), &dwLength);
+    if (REG_DWORD != dwType)
+	{
+		dwLength = 0;
+	}
+    if(0 != dwLength)
+    {
+        dwLength = VUT_DISK_NUM * sizeof(TCHAR);
+        RegQueryValueEx(g_hMyRegKey, TEXT("szDiskLetters"), 0,
+            &dwType, (LPBYTE)(&(g_ds.aDiskLetters)), &dwLength);
+        if (REG_SZ == dwType && (VUT_DISK_NUM * sizeof(TCHAR)) == dwLength)
+        {
+            bLoadedDiskSelection = TRUE;
+        }
+    }
+    if(FALSE == bLoadedDiskSelection)
+    {
+        DiskSelectGetDefaults(&g_ds);
+    }
+    
 
 	/* Read login */
 	dwLength = (LOGIN_MAX_LENGTH - 1) * sizeof(TCHAR);
@@ -241,7 +281,23 @@ VOID ReadRegistry(HWND hwnd)
 }
 
 /******************************************************************************/
-VOID WriteRegistry(HWND hwnd)
+VOID WriteDiskSelectionRegistry(VOID)
+{
+    /* Check key */
+    if(!g_bMyRegKeyValid)
+    {
+        return;
+    }
+
+    /* Write disk selection */
+    RegSetValueEx(g_hMyRegKey, TEXT("dwDiskEnable"), 0,
+        REG_DWORD, (LPBYTE)(&(g_ds.dwDiskEnable)), sizeof(DWORD));
+    RegSetValueEx(g_hMyRegKey, TEXT("szDiskLetters"), 0,
+        REG_SZ, (LPBYTE)(&(g_ds.aDiskLetters)), VUT_DISK_NUM * sizeof(TCHAR));
+}
+
+/******************************************************************************/
+VOID WriteLoginRegistry(HWND hwnd)
 {	
 	DWORD dwLength;
     
