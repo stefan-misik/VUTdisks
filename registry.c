@@ -190,7 +190,8 @@ VOID ReadRegistry(HWND hwnd)
     {
         DiskSelectGetDefaults(&g_ds);
     }
-    
+    if(0 != DiskSelectToString(&g_ds, g_lpDiskSelect, DISKSELECT_MAX_LENGTH))
+        SetDlgItemText(hwnd, IDC_DISK_SELECTED, (LPTSTR)g_lpDiskSelect);
 
 	/* Read login */
 	dwLength = (LOGIN_MAX_LENGTH - 1) * sizeof(TCHAR);

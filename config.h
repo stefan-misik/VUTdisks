@@ -7,6 +7,8 @@
 #define LOGIN_MAX_LENGTH 64
 /* Password string max length */
 #define PASSWORD_MAX_LENGTH 64
+/* Disk select string max length */
+#define DISKSELECT_MAX_LENGTH 64
 /* Local name string max length */
 #define LOCAL_NAME_MAX_LENGTH 16
 /* Remote name string max length */

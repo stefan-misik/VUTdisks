@@ -25,6 +25,21 @@ VOID DiskSelectGetDefaults(
 );
 
 /**
+ * @brief Generate string describing the disk selection
+ * 
+ * @param lpDs Disk selection to describe
+ * @param lpBuffer Buffer to obtain the disk selection
+ * @param uBufferLength Length of the buffer
+ * 
+ * @return Number of characters written into buffer, 0 on error
+ */
+UINT DiskSelectToString(
+    LPDISKSELECTION lpDs,
+    LPTSTR lpBuffer,
+    UINT uBufferLength    
+);
+
+/**
  * @brief Show disk select dialog
  * 
  * @param[in] hwndParent Window handle to the parent window

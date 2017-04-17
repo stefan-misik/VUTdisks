@@ -14,6 +14,7 @@ extern const LPTSTR g_lpDisks[VUT_DISK_NUM];
 extern TCHAR g_lpLogin[LOGIN_MAX_LENGTH];
 extern TCHAR g_lpId[LOGIN_MAX_LENGTH];
 extern TCHAR g_lpPassword[PASSWORD_MAX_LENGTH];
+extern TCHAR g_lpDiskSelect[DISKSELECT_MAX_LENGTH];
 extern DISKSELECTION g_ds;
 
 VOID VUTDisksEnableSavePassword(

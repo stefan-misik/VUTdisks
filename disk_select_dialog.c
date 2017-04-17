@@ -1,4 +1,5 @@
 #include <basetsd.h>
+#include <minwindef.h>
 
 #include "disk_select_dialog.h"
 #include "resource.h"
@@ -187,6 +188,34 @@ VOID DiskSelectGetDefaults(
     }
 
     lpDs->dwDiskEnable = ((DWORD)0xFFFFFFFF) >> (32 - VUT_DISK_NUM);
+}
+
+/******************************************************************************/
+UINT DiskSelectToString(
+    LPDISKSELECTION lpDs,
+    LPTSTR lpBuffer,
+    UINT uBufferLength    
+)
+{
+    UINT uDisk, uPos;
+    DWORD dwDiskEnable = lpDs->dwDiskEnable;
+            
+    for(uDisk = 0, uPos = 0; uDisk < VUT_DISK_NUM && (uPos + 3) < uBufferLength;
+        uDisk ++)
+    {
+        lpBuffer[uPos ++] = (1 & dwDiskEnable) ? lpDs->aDiskLetters[uDisk] :
+            TEXT('-');
+
+        lpBuffer[uPos ++] = TEXT(',');
+        dwDiskEnable >>= 1;
+    }
+
+    if(uPos > 0)
+        uPos --;
+
+    if(uPos < uBufferLength)
+        lpBuffer[uPos ++] = TEXT('\0');
+    return uPos;            
 }
 
 /******************************************************************************/

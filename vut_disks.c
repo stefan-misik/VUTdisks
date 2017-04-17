@@ -40,6 +40,7 @@ LPTSTR g_lpCaption = TEXT(PROJECT_DESC);
 TCHAR g_lpLogin[LOGIN_MAX_LENGTH];
 TCHAR g_lpId[LOGIN_MAX_LENGTH];
 TCHAR g_lpPassword[PASSWORD_MAX_LENGTH];
+TCHAR g_lpDiskSelect[DISKSELECT_MAX_LENGTH];
 DISKSELECTION g_ds;
 
 HICON g_hSmallWarnIcon;
@@ -531,6 +532,11 @@ INT_PTR CALLBACK DialogProc(
                 case IDC_DISK_SELECT:
                     if(IDOK == ShowDiskSelectDialog(hwndDlg, &g_ds))
                     {
+                        if(0 != DiskSelectToString(&g_ds, g_lpDiskSelect,
+                            DISKSELECT_MAX_LENGTH))
+                            SetDlgItemText(hwndDlg, IDC_DISK_SELECTED,
+                                (LPTSTR)g_lpDiskSelect);
+
                         WriteDiskSelectionRegistry();
                     }
                     return TRUE;
