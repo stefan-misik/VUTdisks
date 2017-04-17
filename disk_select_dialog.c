@@ -5,6 +5,17 @@
 #include "resource.h"
 
 /**
+ * @brief List of all considered disk letters
+ */
+const TCHAR g_aDiskLetters[] = 
+{
+    TEXT('A'), TEXT('B'), TEXT('C'), TEXT('D'), TEXT('E'), TEXT('F'), TEXT('G'),
+    TEXT('H'), TEXT('I'), TEXT('J'), TEXT('K'), TEXT('L'), TEXT('M'), TEXT('N'),
+    TEXT('O'), TEXT('P'), TEXT('Q'), TEXT('R'), TEXT('S'), TEXT('T'), TEXT('U'),
+    TEXT('V'), TEXT('W'), TEXT('X'), TEXT('Y'), TEXT('Z')
+};
+
+/**
  * @brief Default disk letters
  */
 const TCHAR g_aDefaultDiskLetters[VUT_DISK_NUM] = 
@@ -21,7 +32,22 @@ static VOID SetDiskLetters(
     HWND hwndDlg
 )
 {
-    int iDisk;
+    INT iDisk, iLetter;
+    TCHAR aDrive[4];
+    DWORD dwAvailableDiskLetters;
+    
+    /* Get available disks */
+    dwAvailableDiskLetters = 0;
+    aDrive[1] = TEXT(':'); aDrive[2] = TEXT('\\'); aDrive[3] = TEXT('\0');
+    for(iLetter = 0; iLetter < (sizeof(g_aDiskLetters)/sizeof(TCHAR));
+        iLetter ++)
+    {
+        aDrive[0] = g_aDiskLetters[iLetter];
+        
+        if(DRIVE_NO_ROOT_DIR == GetDriveType(aDrive))
+            dwAvailableDiskLetters |= (1 << iLetter);
+    }
+    
     
     for(iDisk = 0; iDisk < VUT_DISK_NUM; iDisk ++)
     {
@@ -30,13 +56,16 @@ static VOID SetDiskLetters(
         
         if(NULL != hwndComboBox)
         {
-            TCHAR tchrLetter[2];
-            
-            tchrLetter[1] = TEXT('\0');
-            for(tchrLetter[0] = TEXT('A'); tchrLetter[0] <= TEXT('Z');
-                    tchrLetter[0] ++)
+                        
+            aDrive[1] = TEXT('\0');
+            for(iLetter = 0; iLetter < (sizeof(g_aDiskLetters)/sizeof(TCHAR));
+                iLetter ++)
             {
-                ComboBox_AddString(hwndComboBox, tchrLetter);
+                if((1 << iLetter) & dwAvailableDiskLetters)
+                {
+                    aDrive[0] = g_aDiskLetters[iLetter];
+                    ComboBox_AddString(hwndComboBox, aDrive);
+                }
             }
         }
     }    
@@ -115,10 +144,59 @@ static VOID StoreSelection(
             if(0 != ComboBox_GetText(hwnd, lptstrLetter,
                     sizeof(lptstrLetter)/sizeof(TCHAR)))
                 lpDiskSelection->aDiskLetters[iDisk] = lptstrLetter[0];
+            else
+            {
+                lpDiskSelection->aDiskLetters[iDisk] =
+                    g_aDefaultDiskLetters[iDisk];
+                dwDiskEnable &= ~(1 << iDisk);
+            }
         }
     }
     /* Store enable flags */
     lpDiskSelection->dwDiskEnable = dwDiskEnable;
+}
+
+/**
+ * @brief Is specified disk letter already selected
+ *  
+ * @param hwndDlg Disk select dialog
+ * @param hwndCurrSelector Selector to check
+ * 
+ * @return TRUE if letter is already taken 
+ */
+static BOOL IsAlreadySelected(HWND hwndDlg, HWND hwndCurrSelector)
+{
+    int iDisk;
+    TCHAR lptstrLetter[16];
+    TCHAR tchrLetter;
+    
+    if(0 != ComboBox_GetText(hwndCurrSelector, lptstrLetter,
+        sizeof(lptstrLetter)/sizeof(TCHAR)))
+    {
+        tchrLetter = lptstrLetter[0];
+    }
+    else
+    {
+        return FALSE;
+    }
+
+    for(iDisk = 0; iDisk < VUT_DISK_NUM; iDisk ++)
+    {
+        HWND hwnd;
+        
+        /* Store disk letter */
+        hwnd = GetDlgItem(hwndDlg, IDC_DISK_LETTER_BASE + iDisk);        
+        if(NULL != hwnd && hwnd != hwndCurrSelector)
+        {            
+            if(0 != ComboBox_GetText(hwnd, lptstrLetter,
+                    sizeof(lptstrLetter)/sizeof(TCHAR)))
+            {
+                if(tchrLetter == lptstrLetter[0])
+                    return TRUE;
+            }
+        }
+    }
+    return FALSE;
 }
 
 /******************************************************************************/
@@ -148,10 +226,13 @@ INT_PTR static CALLBACK DiskSelectProc(
     
     case WM_COMMAND:
     {
-        switch (HIWORD(wParam))
+        if(0 != lParam)
         {
-        case 0:
-            switch (LOWORD(wParam))
+            WORD wControlId, wCode;
+            wControlId = LOWORD(wParam);
+            wCode = HIWORD(wParam);
+
+            switch (wControlId)
             {
             case IDOK:
             {
@@ -164,10 +245,25 @@ INT_PTR static CALLBACK DiskSelectProc(
             case IDCANCEL:
                 EndDialog(hwndDlg, LOWORD(wParam));
                 return TRUE;
-            
-            case IDC_GET_LATEST:
-                return TRUE;
-            }
+
+            default:
+                if(wControlId >= IDC_DISK_LETTER_BASE &&
+                    wControlId < (IDC_DISK_LETTER_BASE + VUT_DISK_NUM))
+                {
+                    if(CBN_SELCHANGE == wCode)
+                    {
+                        if(IsAlreadySelected(hwndDlg, (HWND)lParam))
+                        {
+                            MessageBox(hwndDlg,
+                                TEXT("Disk letter already used."),
+                                TEXT("Disk Selection"), MB_OK);
+
+                            SendMessage((HWND)lParam, CB_SETCURSEL, -1, 0);
+                        }
+                    }
+                }
+                break;
+            }            
         }
     }
     }
