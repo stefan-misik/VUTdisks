@@ -41,6 +41,7 @@ TCHAR g_lpLogin[LOGIN_MAX_LENGTH];
 TCHAR g_lpId[LOGIN_MAX_LENGTH];
 TCHAR g_lpPassword[PASSWORD_MAX_LENGTH];
 TCHAR g_lpDiskSelect[DISKSELECT_MAX_LENGTH];
+BOOL g_bDiskSelectChanged = FALSE;
 DISKSELECTION g_ds;
 
 HICON g_hSmallWarnIcon;
@@ -536,8 +537,8 @@ INT_PTR CALLBACK DialogProc(
                             DISKSELECT_MAX_LENGTH))
                             SetDlgItemText(hwndDlg, IDC_DISK_SELECTED,
                                 (LPTSTR)g_lpDiskSelect);
-
-                        WriteDiskSelectionRegistry();
+                        
+                        g_bDiskSelectChanged = TRUE;
                     }
                     return TRUE;
                         
@@ -668,6 +669,11 @@ INT_PTR CALLBACK DialogProc(
 
 
 	case WM_DESTROY:
+        /* Store disk selection settings */
+        if(g_bDiskSelectChanged)
+            WriteDiskSelectionRegistry();
+
+        /* Quit application */
 		PostQuitMessage(0);
 		return TRUE;
 
@@ -675,6 +681,9 @@ INT_PTR CALLBACK DialogProc(
 	{
 		MONITORINFO mi;
         INITCOMMONCONTROLSEX icex;
+
+        /* Disk selection has not been changed yet */
+        g_bDiskSelectChanged = FALSE;
 
         /* Initialize common controls */        
         icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
