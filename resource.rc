@@ -116,7 +116,7 @@ BEGIN
     CONTROL         "<a>Get the latest version</a>",IDC_GET_LATEST,
                     "SysLink",WS_VISIBLE | WS_TABSTOP,170,19,80,8
     CONTROL         "<a>" PROJECT_MAIL "</a>",IDC_MAILTO,
-                    "SysLink",WS_VISIBLE | WS_TABSTOP,170,43,99,8
+                    "SysLink",WS_VISIBLE | WS_TABSTOP,170,43,105,8
 
     EDITTEXT        IDC_APP_NAME, 110,7,60,8,
                     NOT WS_BORDER | NOT WS_TABSTOP | ES_READONLY

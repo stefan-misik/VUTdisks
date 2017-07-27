@@ -284,12 +284,13 @@ INT_PTR CALLBACK DialogProc(
 			HDC hdc = ((LPDRAWITEMSTRUCT)lParam)->hDC;
 			RECT rc = ((LPDRAWITEMSTRUCT)lParam)->rcItem;
 
-			int left = 0;
-			int height = rc.bottom;
 
 			/* If Image is correctly loaded, draw it */
 			if (NULL != g_hLogoImage)
 			{
+				int left;
+				int height;
+
 				HDC hdcMem = CreateCompatibleDC(hdc);
 				BITMAP bitmap;
 				HGDIOBJ oldBitmap = SelectObject(hdcMem, g_hLogoImage);
@@ -302,16 +303,16 @@ INT_PTR CALLBACK DialogProc(
 
 				SelectObject(hdcMem, oldBitmap);
 				DeleteDC(hdcMem);
-			}
 
-			/* Draw white background */
-			if (left < rc.right)
-			{
-				SelectObject(hdc, GetStockObject(DC_PEN));
-				SelectObject(hdc, GetStockObject(DC_BRUSH));
-				SetDCBrushColor(hdc, RGB(255, 255, 255));
-				SetDCPenColor(hdc, RGB(255, 255, 255));
-				Rectangle(hdc, left, 0, rc.right, height);
+				/* Draw white background */
+				if (left < rc.right)
+				{
+					SelectObject(hdc, GetStockObject(DC_PEN));
+					SelectObject(hdc, GetStockObject(DC_BRUSH));
+					SetDCBrushColor(hdc, RGB(255, 255, 255));
+					SetDCPenColor(hdc, RGB(255, 255, 255));
+					Rectangle(hdc, left, 0, rc.right, height);
+				}
 			}
 
 			return TRUE;
