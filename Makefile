@@ -67,8 +67,10 @@ defs.o: defs.c
 	$(CC) $(CFLAGS) $(PROJ_DEFINES) $< -o $@
 
 %.o: %.rc
+	$(MAKE) -C res
 	$(WINDRES) $(RESFLAGS) $(subst \",\\\",$(PROJ_DEFINES)) -i $< -o $@
 
 clean:
 	$(RM) $(EXECUTABLE) $(SRC:.c=.o) $(RES:.rc=.o)
+	$(MAKE) -C res $@
 
