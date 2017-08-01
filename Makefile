@@ -1,4 +1,4 @@
-#! /bin/make -f
+#! /usr/bin/env make -f
 # Makefile to build VUTdisks application using cygwin with mingw compiler
 # or mingw itself
 #

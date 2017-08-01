@@ -1,6 +1,6 @@
-#!/usr/bin/make -f
+#!/usr/bin/env make -f
 # ImageMagic convert command
-CONVERT = /usr/bin/convert
+CONVERT = convert
 CP = cp
 
 SVG = icon.svg warning.svg reveal.svg
