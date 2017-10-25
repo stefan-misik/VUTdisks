@@ -34,7 +34,8 @@ BOOL RunAtStartup(BOOL bEnable)
 
 		/* Return, if filename was nor received correctly */
 		if (dwRes == 0 && dwRes >= 1024)
-		{			
+		{
+            RegCloseKey(hKey);
 			return FALSE;
 		}	
 		
