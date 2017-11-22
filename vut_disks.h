@@ -5,6 +5,12 @@
 #include "common.h"
 #include "disk_select_dialog.h"
 
+/*
+ * Disk mapping progress notification
+ * 
+ * wParam - Number of processed disks
+ * lParam - Pointer to disk mapping parameters structure
+ */
 #define WM_MAP_NOTIFY (WM_USER + 0x0001)
 
 
